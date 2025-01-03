@@ -41,7 +41,7 @@ export default function StreamApp() {
     <ThemeProvider theme={createTheme({palette: { mode: 'dark' }})}>
       <Container>
         <Grid item xs={12}>
-          <Header>{t('Holy Grail')}</Header>
+          <Header>{t('The Holy Grail')}</Header>
         </Grid>
         <Grid item xs={8} style={{ position: 'relative' }}>
           <Statistics appSettings={settings} holyGrailStats={totalStats} onlyCircle />

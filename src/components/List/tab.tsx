@@ -208,7 +208,7 @@ export function TabPanel(props: TabPanelProps) {
                     <Grid item md={4} key={type+dif+index}>
                       <Typography variant="subtitle1" gutterBottom component="div">{t(title(dif))}</Typography>
                       <List
-                        sx={{ width: '100%', bgcolor: 'background.paper' }}
+                        sx={{ width: '100%', bgcolor: '#151515' }}
                         aria-label="contacts"
                       >
                         {Object.keys((itemList as any)[type][dif]).map(
@@ -299,7 +299,7 @@ export function TabPanel(props: TabPanelProps) {
               <Grid item md={4} key={index+set}>
                 <Typography variant="h6" gutterBottom mt={2} component="div">{t(title(set))}</Typography>
                 <List
-                  sx={{ width: '100%', bgcolor: 'background.paper' }}
+                  sx={{ width: '100%', bgcolor: '#151515' }}
                   aria-label="contacts"
                 >
                   {Object.keys((itemList as any)[set]).map(

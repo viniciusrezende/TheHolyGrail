@@ -56,9 +56,9 @@ function createWindow () {
     y: mainWindowState.y,
     width: mainWindowState.width,
     height: mainWindowState.height,
-    minWidth: 540,
-    minHeight: 300,
-    backgroundColor: '#111111',
+    minWidth: 1100,
+    minHeight: 700,
+    backgroundColor: '#222222',
     autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: false,

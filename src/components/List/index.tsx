@@ -96,7 +96,7 @@ export function List({ fileReaderResponse, appSettings, itemNotes }: ListProps) 
 
   return (
     <Container>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      <Box sx={{ borderBottom: 4, borderColor: 'divider' }}>
         <ButtonPanel>
           <Search
             onSearch={(text: string) => {
@@ -117,11 +117,11 @@ export function List({ fileReaderResponse, appSettings, itemNotes }: ListProps) 
             src={logo}
             alt=""
           />
-          <h1>{t('Holy Grail')}</h1>
+          <h1>{t('The Holy Grail')}</h1>
           <h6>
-            {t('by')}&nbsp;
-            <a href="#" onClick={() => window.Main.openUrl('https://www.twitch.tv/nadinwins')}>
-              NadinWins<img src={twitchIcon} alt="Twitch" />
+            {t('Modified by')}&nbsp;
+            <a href="#">
+              PyroSplat
             </a>
           </h6>
         </Logo>
@@ -140,7 +140,7 @@ export function List({ fileReaderResponse, appSettings, itemNotes }: ListProps) 
               [
                 <Tab label={t("Sets")} key="sets" />,
                 appSettings.grailRunes && <Tab label={t("Runes")}  key="runes" />,
-                appSettings.grailRunewords && <Tab label={t("Runewords")}  key="runewords" />,
+                appSettings.grailRunewords && <Tab label={t("Runeswords")}  key="runewords" />,
               ]
             }
           </Tabs> 

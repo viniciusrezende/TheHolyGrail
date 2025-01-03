@@ -21,9 +21,10 @@ const Circle = ({ animated, owned, total, percent, subOwned, subTotal }: Props) 
             value={owned + (subOwned || 0)}
             maxValue={total + (subTotal || 0)}
             styles={buildStyles({
-                pathColor: '#6E55AE',
+                backgroundColor: '#111',
+                pathColor: '#CC5F43',
                 textColor: '#ddd',
-                trailColor: '#333',
+                trailColor: '#111',
             })}
         >
             <CirclePercent>{percent}%</CirclePercent>

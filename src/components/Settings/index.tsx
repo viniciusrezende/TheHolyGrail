@@ -99,6 +99,11 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
     window.Main.saveSetting(settingsKeys.enableSounds, sound);
   };
 
+  const handleSave = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const save = event.target.checked;
+    window.Main.saveSetting(settingsKeys.enableSave, save);
+  };
+
   const handleGameVersion = (event: SelectChangeEvent) => {
     const version = (event.target.value as GameVersion);
     window.Main.saveSetting(settingsKeys.gameVersion, version);
@@ -140,8 +145,8 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
             </ListItemIcon>
             <ListItemText
               primary={t("App version: ") + packageJson.version}
-              secondary={t("Click here to open releases page in GitHub for changelog and older versions")}
-              onClick={() => { window.Main.openUrl('https://github.com/zeddicus-pl/d2rHolyGrail/releases') }}
+              secondary={t("Modified Version of zeddicus-pl/d2rHolyGrail")}
+              //onClick={() => { window.Main.openUrl('') }}
             />
           </ListItem>
           <Divider />
@@ -214,6 +219,11 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                 control={<Checkbox checked={appSettings.enableSounds} onChange={handleSound} />}
                 label={i18n.t`Play sound when new item is found`}
               />
+              <FormControlLabel
+                sx={{mt: 1}}
+                control={<Checkbox checked={appSettings.enableSave} onChange={handleSave} />}
+                label={i18n.t`Persistant grail progress (Saves items found)`}
+              />
             </FormControl>
           </ListItem>
           <div style={{ opacity: 0.5, textAlign: 'right', padding: 10  }}>
@@ -252,7 +262,6 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                 onChange={handleGameVersion}
               >
                 <MenuItem value={GameVersion.Resurrected}>{t("Diablo 2 Resurrected")}</MenuItem>
-                <MenuItem value={GameVersion.Classic}>{t("Diablo 2 Lord of Destruction")}</MenuItem>
               </Select>
             </FormControl>
           </ListItem>

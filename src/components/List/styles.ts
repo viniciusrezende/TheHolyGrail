@@ -2,6 +2,7 @@ import styled from 'styled-components'
 
 export const Container = styled.div`
   padding: 15px;
+  
 `
 
 export const Logo = styled.div`
@@ -14,18 +15,20 @@ export const Logo = styled.div`
       height: 12px;
       padding-left: 4px;
     }
+    
   }
 
   h1 {
     font-size: 60px;
-    font-family: 'Gwendolyn', cursive;
+    font-family: 'Diablo';
   }
 
   h6 {
     align-self: flex-end;
     margin-bottom: 6px;
-    font-family: 'Gwendolyn', cursive;
-    font-size: 16px;
+    font-family: 'Diablo-Light';
+    font-size: 12px;
+    color: grey;
   }
 `
 
@@ -45,8 +48,8 @@ export const CountLabel = styled.div`
   position: absolute;
   left: 18px;
   bottom: -1px;
-  color: rgb(97, 97, 97);
-  font-size: 8.5pt;
+  color: rgb(204, 95, 67);
+  font-size: 9.5pt;
 `
 
 export const Rune = styled.div`
@@ -59,6 +62,7 @@ export const Rune = styled.div`
   margin-right: 10px;
   vertical-align: middle;
   cursor: pointer;
+  
 `
 
 export const RuneBg = styled.img`
@@ -68,6 +72,7 @@ export const RuneBg = styled.img`
   right: 0;
   width: 100%;
   height: 100%;
+ 
 `
 
 export const RuneIcon = styled.div`
@@ -101,6 +106,7 @@ export const TooltipTitlePill = styled.div`
   padding: 5px 10px;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.1);
+  
 `
 
 export const RuneList = styled.div`

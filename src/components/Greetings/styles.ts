@@ -21,15 +21,15 @@ export const Container = styled.div`
 
   h1 {
     font-size: 60px;
-    font-family: 'Gwendolyn', cursive;
+    font-family: 'Diablo';
   }
 
   h6 {
     width: 300px;
     text-align: right;
     font-size: 16px;
-    margin-top: 5px;
-    font-family: 'Gwendolyn', cursive;
+    margin-top: 6px;
+    font-family: 'Diablo-Light';
   }
 `
 

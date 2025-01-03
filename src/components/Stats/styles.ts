@@ -22,7 +22,7 @@ export const Image = styled.img`
 `
 
 export const Text = styled.div`
-  font-family: 'Gwendolyn', cursive;
+  font-family: 'Diablo', cursive;
   font-size: 13vw;
   position: absolute;
   left: 50%;

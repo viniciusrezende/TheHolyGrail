@@ -90,6 +90,7 @@ export type Settings = {
   gameVersion: GameVersion,
   onlyMissing: boolean,
   enableSounds: boolean,
+  enableSaves: boolean,
 }
 
 export type HolyGrailSeed = IHolyGrailData & {

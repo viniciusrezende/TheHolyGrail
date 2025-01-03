@@ -1,11 +1,11 @@
 {
   "name": "d2rholygrail",
-  "author": "Kamil Tunkiewicz <kamil.tunkiewicz(at)gmail.com>",
-  "version": "2.4.0",
+  "author": "Kamil Tunkiewicz <kamil.tunkiewicz(at)gmail.com> - Modified by PyroSplat",
+  "version": "2.7.0",
   "description": "Scan your Diablo 2 Resurrected saves to check your Holy Grail progress",
   "main": "./.webpack/main",
   "scripts": {
-    "start": "set ELECTRON_ENV=development&&electron-forge start",
+    "start": "electron-forge start",
     "package": "electron-forge package",
     "build": "yarn run package && yarn run build-win",
     "build-win": "electron-builder build -w",
@@ -30,7 +30,7 @@
     "chokidar": "^3.5.3",
     "circle-flags": "https://github.com/HatScripts/circle-flags",
     "css-loader": "^6.6.0",
-    "d2-holy-grail": "https://github.com/Nasicus/d2-holy-grail.git",
+    "d2-holy-grail": "https://github.com/pyrosplat/d2-holy-grail.git",
     "electron-dl": "^3.3.1",
     "electron-json-storage": "^4.5.0",
     "electron-window-state": "^5.0.3",
@@ -65,7 +65,7 @@
     "@babel/preset-env": "7.16.11",
     "@babel/preset-react": "7.16.7",
     "@babel/preset-typescript": "7.16.7",
-    "@electron-forge/cli": "6.0.0-beta.63",
+    "@electron-forge/cli": "^6.0.0-beta.63",
     "@electron-forge/maker-deb": "6.0.0-beta.63",
     "@electron-forge/maker-rpm": "6.0.0-beta.63",
     "@electron-forge/maker-squirrel": "6.0.0-beta.63",
@@ -86,7 +86,6 @@
     "copy-webpack-plugin": "^10.2.4",
     "cross-env": "7.0.3",
     "electron": "16.0.9",
-    "electron-builder": "^23.0.3",
     "eslint": "8.13.0",
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-import": "2.25.4",
@@ -105,7 +104,7 @@
   },
   "build": {
     "appId": "d2rHolyGrail",
-    "productName": "Diablo 2 Holy Grail",
+    "productName": "The Holy Grail",
     "win": {
       "target": [
         "nsis"
@@ -118,7 +117,7 @@
     "nsis": {
       "installerIcon": "./assets/install.ico",
       "uninstallerIcon": "./assets/delete.ico",
-      "uninstallDisplayName": "Diablo 2 Holy Grail",
+      "uninstallDisplayName": "The Holy Grail",
       "license": "./assets/license.txt",
       "oneClick": false,
       "allowToChangeInstallationDirectory": true

@@ -14,8 +14,8 @@ export function StatisticsLine({ title, stats, bold, bolder }: StatisticsLinePro
       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
       style={Object.assign(
         {},
-        bold ? { background: '#222', fontWeight: 'bold' } : {},
-        bolder ? { background: '#333' } : {}
+        bold ? { background: '#111', fontWeight: 'bold' } : {},
+        bolder ? { background: '#555' } : {}
       )}
     >
       <TableCell>{title}</TableCell>

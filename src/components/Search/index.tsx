@@ -46,7 +46,7 @@ export function Search({ onSearch }: SearchBoxProps) {
   }
 
   return <>
-    { show && <FormControl sx={{ m: 1, width: '25ch' }} variant="standard">
+    { show && <FormControl sx={{ m: 1, width: '25ch', color: "red"}} variant="standard">
       <Input
         type="text"
         value={search}
