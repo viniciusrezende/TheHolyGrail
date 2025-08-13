@@ -8,6 +8,7 @@ import itemsDatabase from './lib/items';
 import settingsStore from './lib/settings';
 import { setupStreamFeed, streamPort, updateDataToListeners } from './lib/stream';
 import { registerUpdateDownloader } from './lib/update';
+import { getEverFound, markEverFound, clearEverFound } from './lib/everFound';
 
 // these constants are set by the build stage
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string
@@ -34,13 +35,13 @@ const assetsPath =
     ? process.resourcesPath
     : app.getAppPath()
 
-function createWindow () {
+function createWindow() {
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     // eslint-disable-next-line node/no-callback-literal
     callback({
       responseHeaders: {
         ...details.responseHeaders,
-        'Content-Security-Policy': [ CSP_HEADER ]
+        'Content-Security-Policy': [CSP_HEADER]
       }
     })
   })
@@ -82,12 +83,12 @@ function createWindow () {
   runSilospenServer();
 }
 
-async function closeApp () {
+async function closeApp() {
   itemsDatabase.shutdown();
   app.quit();
 }
 
-async function registerListeners () {
+async function registerListeners() {
   ipcMain.on('readFilesUponStart', (event) => {
     itemsDatabase.readFilesUponStart(event);
   });
@@ -122,6 +123,7 @@ async function registerListeners () {
   ipcMain.on('saveManualItem', (event, itemId, count) => {
     eventToReply = event;
     itemsDatabase.saveManualItem(itemId, count);
+    markEverFound(itemId);
     itemsDatabase.fillInAvailableRunes();
     event.reply('openFolder', itemsDatabase.getItems());
     updateDataToListeners();
@@ -129,6 +131,7 @@ async function registerListeners () {
   ipcMain.on('saveManualEthItem', (event, itemId, count) => {
     eventToReply = event;
     itemsDatabase.saveManualEthItem(itemId, count);
+    markEverFound(itemId + '#eth');
     event.reply('openFolder', itemsDatabase.getItems());
     updateDataToListeners();
   });
@@ -148,12 +151,41 @@ async function registerListeners () {
     eventToReply = event;
     itemsDatabase.setItemNote(itemName, note).then((items) => event.reply('getItemNotes', items))
   });
+  ipcMain.on('getEverFound', (event) => {
+  event.returnValue = getEverFound();
+});
+
+ipcMain.handle('confirmAndClearEverFound', async () => {
+  const { response } = await dialog.showMessageBox({
+    type: 'warning',
+    buttons: ['Cancel', 'Clear'],
+    defaultId: 0,
+    cancelId: 0,
+    title: 'Clear persistent history?',
+    message: 'This will remove all “Previously found” history.',
+    detail: 'Your stash will not be touched. This only clears the saved history used for showing the (Previously found) badge and counting those toward totals when enabled.',
+    noLink: true,
+  });
+
+  if (response !== 1) return { cleared: false }; // user canceled
+
+  await clearEverFound();
+
+  // notify all windows so UI refreshes instantly
+  BrowserWindow.getAllWindows().forEach(win =>
+    win.webContents.send('everFoundCleared')
+  );
+
+  return { cleared: true };
+});
 }
 
-app.on('ready', createWindow)
-  .whenReady()
-  .then(registerListeners)
-  .catch(e => console.error(e))
+app.whenReady()
+  .then(async () => {
+    await registerListeners();   
+    createWindow();             
+  })
+  .catch(e => console.error(e));
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {

@@ -17,6 +17,7 @@ import settingsStore from './settings';
 import { updateDataToListeners } from './stream';
 import { runesMapping } from './runesMapping';
 import { getSaveGamesFolder } from 'platform-folders';
+import { markManyEverFound } from './everFound';
 const { readFile } = promises;
 
 class ItemsStore {
@@ -26,6 +27,10 @@ class ItemsStore {
   filesChanged: boolean;
   readingFiles: boolean;
   itemNotes: ItemNotes | null;
+
+  everFound: Record<string, boolean>;
+
+
 
   constructor() {
     this.currentData = {
@@ -39,6 +44,7 @@ class ItemsStore {
     this.filesChanged = false;
     this.readingFiles = false;
     this.itemNotes = null;
+    this.everFound = (storage.getSync('everFound') as Record<string, boolean>) || {};
     setInterval(this.tickReader, 500);
     try { d2s.getConstantData(96); } catch (e) { d2s.setConstantData(96, constants96); }
     try { d2s.getConstantData(97); } catch (e) { d2s.setConstantData(97, constants96); }
@@ -48,6 +54,10 @@ class ItemsStore {
     try { d2s.getConstantData(1); } catch (e) { d2s.setConstantData(1, constants96); }
     try { d2s.getConstantData(2); } catch (e) { d2s.setConstantData(2, constants96); }
   }
+
+  getEverFound = (): Record<string, boolean> => {
+    return this.everFound || {};
+  };
 
   getItems = () => {
     return this.currentData;
@@ -111,7 +121,7 @@ class ItemsStore {
       }
     });
   }
-  
+
   saveManualEthItem = (itemId: string, count: number) => {
     if (count > 0) {
       this.currentData.ethItems[itemId] = this.createManualItem(count);
@@ -266,7 +276,7 @@ class ItemsStore {
               ilevel: item.level,
               socketed: !!item.socketed,
             }
-            let key: 'items' | 'ethItems' = settings.grailType === GrailType.Each &&   savedItem.ethereal ? 'ethItems' : 'items';
+            let key: 'items' | 'ethItems' = settings.grailType === GrailType.Each && savedItem.ethereal ? 'ethItems' : 'items';
             if (results[key][name]) {
               if (!results[key][name].inSaves[saveName]) {
                 results[key][name].inSaves[saveName] = [];
@@ -278,7 +288,7 @@ class ItemsStore {
                 inSaves: {},
                 type: item.type,
               }
-              results[key][name].inSaves[saveName] = [ savedItem ];
+              results[key][name].inSaves[saveName] = [savedItem];
             }
             if (isRune(item) && !item.socketed) {
               if (results.availableRunes[name]) {
@@ -292,7 +302,7 @@ class ItemsStore {
                   inSaves: {},
                   type: item.type,
                 }
-                results.availableRunes[name].inSaves[saveName] = [ savedItem ];
+                results.availableRunes[name].inSaves[saveName] = [savedItem];
               }
             }
             results.stats[saveName] = (results.stats[saveName] || 0) + 1;
@@ -311,6 +321,23 @@ class ItemsStore {
       if (erroringSaves.length) {
         event.reply('errorReadingSaveFile', erroringSaves);
       }
+
+      // --- NEW: persist ever-found history when the setting is enabled
+      const s = settingsStore.getSettings();
+      if (s.persistFoundOnDrop) {
+        // Collect all item IDs (normal + eth). These are already simplified names.
+        const everIds = new Set<string>([
+          ...Object.keys(results.items || {}),
+          ...Object.keys(results.ethItems || {}),
+        ]);
+        // If you also want to include runewords or runes that ONLY appeared in availableRunes,
+        // you can uncomment the following lines:
+        // for (const id of Object.keys(results.availableRunes || {})) everIds.add(id);
+
+        markManyEverFound(Array.from(everIds));
+      }
+      // --- end NEW
+
       event.reply('openFolder', results);
       this.currentData = results;
       updateDataToListeners();

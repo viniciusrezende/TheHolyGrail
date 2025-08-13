@@ -1,13 +1,14 @@
-import { ChangeEvent, LegacyRef, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, LegacyRef, useEffect, useMemo, useRef, useState } from 'react';
 import { Box, Tabs, Tab } from '@mui/material';
 import { Container, Image, Logo, ButtonPanel, MissingOnlySwitch } from './styles';
 import { TabPanel } from './tab';
 import SettingsPanel from '../Settings'
 import { Trans, useTranslation } from 'react-i18next';
-import { FileReaderResponse, GrailType, ItemNotes, Settings } from '../../@types/main.d';
+import { FileReaderResponse, GrailType, ItemNotes, Settings, ItemsInSaves } from '../../@types/main.d';
 import { Search } from '../Search';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';import DoneIcon from '@mui/icons-material/Done';
+import Switch from '@mui/material/Switch';
+import DoneIcon from '@mui/icons-material/Done';
 
 import { getHolyGrailSeedData } from '../../../electron/lib/holyGrailSeedData';
 
@@ -46,6 +47,7 @@ type ListProps = {
 export function List({ fileReaderResponse, appSettings, itemNotes }: ListProps) {
   const [tab, setTab] = useState(TabState.Statistics);
   const [search, setSearch] = useState<string>('');
+  const [historyVersion, setHistoryVersion] = useState(0); // bump when everFound is cleared
   const { t } = useTranslation();
 
   if (fileReaderResponse === null) {
@@ -63,6 +65,59 @@ export function List({ fileReaderResponse, appSettings, itemNotes }: ListProps) 
 
   const { items, ethItems, stats, availableRunes } = fileReaderResponse;
 
+  // When main broadcasts that the persistent history was cleared, refresh our memos
+  useEffect(() => {
+    const handler = () => setHistoryVersion(v => v + 1);
+    (window as any)?.Main?.on?.('everFoundCleared', handler);
+    // no explicit cleanup needed because your Main.on helper calls removeAllListeners per registration
+  }, []);
+
+  // Persisted history map: Record<string, boolean>, with optional ETH entries using '#eth' suffix.
+  const everFound = useMemo(
+    () => (window as any)?.Main?.getEverFound ? (window as any).Main.getEverFound() as Record<string, boolean> : {},
+    [appSettings.persistFoundOnDrop, historyVersion]
+  );
+
+  // Merge history into normal items so totals include "previously found" when enabled.
+  const itemsForStats: ItemsInSaves = useMemo(() => {
+    if (!appSettings.persistFoundOnDrop) return items;
+
+    const merged: ItemsInSaves = { ...items };
+    for (const rawId of Object.keys(everFound)) {
+      if (!everFound[rawId]) continue;
+      if (rawId.endsWith('#eth')) continue; // eth-only entries go to eth map
+      const id = rawId;
+      if (!merged[id]) {
+        merged[id] = {
+          name: id,
+          type: '',
+          inSaves: { History: [ {} as any ] }, // minimal stub shaped like a real save entry
+        };
+      }
+    }
+    return merged;
+  }, [items, everFound, appSettings.persistFoundOnDrop]);
+
+  // Merge history into eth items (keys end with '#eth', we strip the suffix)
+  const ethItemsForStats: ItemsInSaves = useMemo(() => {
+    if (!appSettings.persistFoundOnDrop) return ethItems;
+
+    const merged: ItemsInSaves = { ...ethItems };
+    for (const rawId of Object.keys(everFound)) {
+      if (!everFound[rawId]) continue;
+      if (!rawId.endsWith('#eth')) continue;
+      const id = rawId.slice(0, -4); // strip "#eth"
+      if (!merged[id]) {
+        merged[id] = {
+          name: id,
+          type: '',
+          inSaves: { History: [ {} as any ] },
+        };
+      }
+    }
+    return merged;
+  }, [ethItems, everFound, appSettings.persistFoundOnDrop]);
+
   const holyGrailSeedData = useMemo(
     () => getHolyGrailSeedData(appSettings, false),
     [
@@ -76,11 +131,12 @@ export function List({ fileReaderResponse, appSettings, itemNotes }: ListProps) 
     []
   );
 
+  // Feed augmented maps so totals include "previously found" when enabled
   const holyGrailStats = useMemo(
-    () => computeStats(items, ethItems, holyGrailSeedData, ethGrailSeedData, appSettings, playSound),
+    () => computeStats(itemsForStats, ethItemsForStats, holyGrailSeedData, ethGrailSeedData, appSettings, playSound),
     [
-      items,
-      ethItems,
+      itemsForStats,
+      ethItemsForStats,
       holyGrailSeedData,
       appSettings.grailType,
       appSettings.grailRunes,
@@ -154,6 +210,7 @@ export function List({ fileReaderResponse, appSettings, itemNotes }: ListProps) 
         />
       </MissingOnlySwitch>}
       {(search.length || tab === TabState.Statistics) && <TabPanel
+        key={`stats-${historyVersion}`}
         value={search.length ? TabState.None : tab}
         index={TabState.Statistics}
         player={items}
@@ -164,6 +221,7 @@ export function List({ fileReaderResponse, appSettings, itemNotes }: ListProps) 
         holyGrailStats={holyGrailStats}
       />}
       {(search.length || tab === TabState.UniqueArmor) && <TabPanel
+        key={`ua-${historyVersion}`}
         value={search.length ? TabState.UniqueArmor : tab}
         index={TabState.UniqueArmor}
         ethItems={ethGrailSeedData.uniques.armor}
@@ -176,6 +234,7 @@ export function List({ fileReaderResponse, appSettings, itemNotes }: ListProps) 
         itemNotes={itemNotes}
       />}
       {(search.length || tab === TabState.UniqueWeapons) && <TabPanel
+        key={`uw-${historyVersion}`}
         value={search.length ? TabState.UniqueWeapons : tab}
         index={TabState.UniqueWeapons}
         ethItems={ethGrailSeedData.uniques.weapons}
@@ -188,6 +247,7 @@ export function List({ fileReaderResponse, appSettings, itemNotes }: ListProps) 
         itemNotes={itemNotes}
       />}
       {(search.length || tab === TabState.UniqueOther) && <TabPanel
+        key={`uo-${historyVersion}`}
         value={search.length ? TabState.UniqueOther : tab}
         index={TabState.UniqueOther}
         ethItems={ethGrailSeedData.uniques.other}
@@ -202,6 +262,7 @@ export function List({ fileReaderResponse, appSettings, itemNotes }: ListProps) 
       {appSettings.grailType !== GrailType.Ethereal &&
         <>
           {(search.length || tab === TabState.Sets) && <TabPanel
+            key={`sets-${historyVersion}`}
             value={search.length ? TabState.Sets : tab}
             index={TabState.Sets}
             sets={holyGrailSeedData.sets}
@@ -213,6 +274,7 @@ export function List({ fileReaderResponse, appSettings, itemNotes }: ListProps) 
             itemNotes={itemNotes}
           />}
           {(search.length || tab === TabState.Runes) && <TabPanel
+            key={`runes-${historyVersion}`}
             value={search.length ? TabState.Runes : tab}
             index={TabState.Runes}
             runes={holyGrailSeedData.runes}
@@ -225,6 +287,7 @@ export function List({ fileReaderResponse, appSettings, itemNotes }: ListProps) 
             availableRunes={availableRunes}
           />}
           {(search.length || tab === TabState.Runewords) && <TabPanel
+            key={`runewords-${historyVersion}`}
             value={search.length ? TabState.Runewords : tab}
             index={TabState.Runewords}
             runewords={holyGrailSeedData.runewords}

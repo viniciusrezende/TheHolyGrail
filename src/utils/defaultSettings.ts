@@ -12,7 +12,7 @@ export const settingsKeys: {[name in keyof Settings]: name} = {
   grailRunewords: 'grailRunewords',
   onlyMissing: 'onlyMissing',
   enableSounds: 'enableSounds',
-  enableSaves: "enableSaves",
+  persistFoundOnDrop: 'persistFoundOnDrop', // <-- NEW
 }
 
 const defaultSettings: Settings = {
@@ -27,7 +27,7 @@ const defaultSettings: Settings = {
   [settingsKeys.grailRunewords]: false,
   [settingsKeys.onlyMissing]: false,
   [settingsKeys.enableSounds]: false,
-  [settingsKeys.enableSaves]: true,
+  [settingsKeys.persistFoundOnDrop]: false, // <-- NEW default OFF
 }
 
 export default defaultSettings;

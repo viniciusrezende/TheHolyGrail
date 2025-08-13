@@ -27,6 +27,8 @@ import i18n from '../../i18n';
 import { settingsKeys } from '../../utils/defaultSettings';
 import cc from '../../../assets/cc.svg';
 import { clearPrevUniqItemsFound } from '../../utils/objects';
+import Button from '@mui/material/Button';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -54,7 +56,7 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
 
   useEffect(() => {
     if (iframeRef.current) {
-      iframeRef.current.src = 'http://localhost:'+streamPort+'/';
+      iframeRef.current.src = 'http://localhost:' + streamPort + '/';
     }
   }, [iframeVisible, streamPort]);
 
@@ -99,9 +101,9 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
     window.Main.saveSetting(settingsKeys.enableSounds, sound);
   };
 
-  const handleSave = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const save = event.target.checked;
-    window.Main.saveSetting(settingsKeys.enableSave, save);
+  const handlePersistFound = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const enabled = event.target.checked;
+    window.Main.saveSetting(settingsKeys.persistFoundOnDrop, enabled);
   };
 
   const handleGameVersion = (event: SelectChangeEvent) => {
@@ -146,7 +148,7 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
             <ListItemText
               primary={t("App version: ") + packageJson.version}
               secondary={t("Modified Version of zeddicus-pl/d2rHolyGrail")}
-              //onClick={() => { window.Main.openUrl('') }}
+            //onClick={() => { window.Main.openUrl('') }}
             />
           </ListItem>
           <Divider />
@@ -205,30 +207,57 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                 <MenuItem value={GrailType.Each}>{t("Normal and ethereal items separately counted")}</MenuItem>
               </Select>
               <FormControlLabel
-                sx={{mt: 1}}
+                sx={{ mt: 1 }}
                 control={<Checkbox checked={appSettings.grailRunes} onChange={handleRunes} />}
                 label={i18n.t`Include Runes`}
               />
               <FormControlLabel
-                sx={{mt: 1}}
+                sx={{ mt: 1 }}
                 control={<Checkbox checked={appSettings.grailRunewords} onChange={handleRunewords} />}
                 label={i18n.t`Include Runewords`}
               />
               <FormControlLabel
-                sx={{mt: 1}}
+                sx={{ mt: 1 }}
                 control={<Checkbox checked={appSettings.enableSounds} onChange={handleSound} />}
                 label={i18n.t`Play sound when new item is found`}
               />
               <FormControlLabel
-                sx={{mt: 1}}
-                control={<Checkbox checked={appSettings.enableSave} onChange={handleSave} />}
-                label={i18n.t`Persistant grail progress (Saves items found)`}
-              />
+                sx={{ mt: 1 }}
+                control={
+                  <Checkbox
+                    checked={!!appSettings.persistFoundOnDrop}
+                    onChange={handlePersistFound}
+                  />
+                }
+                label={t('Keep items marked as found after dropping')}
+
+                
+              /> 
+
             </FormControl>
+           
           </ListItem>
-          <div style={{ opacity: 0.5, textAlign: 'right', padding: 10  }}>
+          <div style={{ opacity: 0.5, textAlign: 'right', padding: 10 }}>
+          <Button
+  variant="outlined"
+  color="error"
+  startIcon={<DeleteForeverIcon />}
+  sx={{ mt: 1 }}
+  onClick={async () => {
+    try {
+      const res = await window.Main.clearEverFoundWithConfirm();
+      // optional: toast/snackbar
+       //if (res?.cleared) enqueueSnackbar('Persistent history cleared', { variant: 'success' });
+    } catch (e) {
+      console.error(e);
+    }
+  }}
+>
+  Clear persistent history
+</Button></div>
+          <div style={{ opacity: 0.5, textAlign: 'right', padding: 10 }}>
             <a href="http://creativecommons.org/licenses/by/4.0/" style={{ color: '#eee' }}>
-              <img src={cc} alt="" style={{ width: 20, verticalAlign: "bottom"}} />
+              <img src={cc} alt="" style={{ width: 20, verticalAlign: "bottom" }} />
             </a>
             &nbsp;
             <Trans>Sounds from</Trans>
@@ -248,24 +277,24 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
         </List>
         <Divider />
         <ListItem button>
-            <ListItemIcon>
-              <GroupIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary={t("Game version")}
-           />
-            <FormControl>
-              <Select
-                // @ts-ignore
-                value={appSettings.gameVersion}
-                // @ts-ignore
-                onChange={handleGameVersion}
-              >
-                <MenuItem value={GameVersion.Resurrected}>{t("Diablo 2 Resurrected")}</MenuItem>
-              </Select>
-            </FormControl>
-          </ListItem>
-          <Divider />
+          <ListItemIcon>
+            <GroupIcon />
+          </ListItemIcon>
+          <ListItemText
+            primary={t("Game version")}
+          />
+          <FormControl>
+            <Select
+              // @ts-ignore
+              value={appSettings.gameVersion}
+              // @ts-ignore
+              onChange={handleGameVersion}
+            >
+              <MenuItem value={GameVersion.Resurrected}>{t("Diablo 2 Resurrected")}</MenuItem>
+            </Select>
+          </FormControl>
+        </ListItem>
+        <Divider />
         <Grid m={{ t: 2 }} p={3}>
           <Accordion onChange={(event: SyntheticEvent, expanded: boolean) => {
             setIframeVisible(expanded);
@@ -277,7 +306,7 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
             </AccordionSummary>
             <AccordionDetails>
               <Typography>{t("To add a progress overlay into your stream, add a Browser source in your OBS, and point it to the below address. Set it to 300x400 width and heigth.")}</Typography>
-              <Typography><a onClick={() => { window.Main.openUrl("http://localhost:"+streamPort+"/") }}>http://localhost:{streamPort}/</a></Typography>
+              <Typography><a onClick={() => { window.Main.openUrl("http://localhost:" + streamPort + "/") }}>http://localhost:{streamPort}/</a></Typography>
               <div style={{ paddingTop: 15 }}>
                 <iframe ref={iframeRef} style={{ width: 300, height: 400, background: '#000', border: 0 }} />
               </div>

@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { Settings } from '../src/@types/main.d'
 
 export const api = {
+
   readFilesUponStart: () => {
     ipcRenderer.send('readFilesUponStart')
   },
@@ -23,6 +24,11 @@ export const api = {
   saveSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => {
     ipcRenderer.send('saveSetting', key, value);
   },
+
+  markFoundEver: (itemId: string) => {
+    ipcRenderer.send('markFoundEver', itemId);
+  },
+
   saveImage: (data: string) => {
     ipcRenderer.send('saveImage', data);
   },
@@ -56,6 +62,28 @@ export const api = {
   setItemNote: (itemName: string, note: string) => {
     ipcRenderer.send('setItemNote', itemName, note);
   },
+
+  // --- Ever-found history ---
+  getEverFound: (): Record<string, boolean> => {
+    return ipcRenderer.sendSync('getEverFound');
+  },
+
+  // NEW: ask main to confirm and clear the persistent history
+  clearEverFoundWithConfirm: (): Promise<{ cleared: boolean }> => {
+    return ipcRenderer.invoke('confirmAndClearEverFound');
+  },
+
+  // NEW: subscribe/unsubscribe to the broadcast when history is cleared
+  onEverFoundCleared: (cb: () => void) => {
+    const handler = () => cb();
+    ipcRenderer.on('everFoundCleared', handler);
+    return handler; // return ref so the caller can remove it later
+  },
+  offEverFoundCleared: (handler: (...args: any[]) => void) => {
+    if (handler) ipcRenderer.removeListener('everFoundCleared', handler);
+  },
+
+  // generic event hook (keep last; note this clears existing listeners on that channel)
   on: (channel: string, callback: Function) => {
     ipcRenderer.removeAllListeners(channel);
     ipcRenderer.on(channel, (_, data) => callback(data))

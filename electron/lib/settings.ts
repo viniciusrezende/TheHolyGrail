@@ -18,17 +18,28 @@ class SettingsStore {
   }
 
   loadSettings = (): Settings => {
-    const settings = (storage.getSync('settings') as Settings);
-    return {
+    const settings = (storage.getSync('settings') as any);
+    // Back-compat: migrate enableSaves -> persistFoundOnDrop
+    if (settings && typeof settings.persistFoundOnDrop === 'undefined' && typeof settings.enableSaves !== 'undefined') {
+      settings.persistFoundOnDrop = !!settings.enableSaves;
+    }
+    const merged = {
       ...defaultSettings,
       ...settings
-    };
+    };    // Optionally write back the migrated structure (removes obsolete key)
+    if (settings && typeof settings.enableSaves !== 'undefined') {
+      try {
+        const { enableSaves, ...rest } = merged as any;
+        storage.set('settings', rest, () => { });
+      } catch { }
+    }
+    return merged as Settings;
   }
-  
+
   getSetting = <K extends keyof Settings>(key: K): Settings[K] | null => {
     return this.currentSettings[key] ? this.currentSettings[key] : null;
   }
-  
+
   saveSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     this.currentSettings[key] = value;
     storage.set('settings', this.currentSettings, (error) => {

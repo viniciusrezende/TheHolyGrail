@@ -1,8 +1,19 @@
-node_modules
-dist
-packages
-.webpack
-out
+# Node / tooling
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+*.log
+
+# Electron/Forge/Webpack outputs
+.webpack/
+out/
+dist/
+*.asar
+
+# OS / IDE
 .DS_Store
-yarn-error.log
-.idea
+Thumbs.db
+.idea/
+.vscode/
