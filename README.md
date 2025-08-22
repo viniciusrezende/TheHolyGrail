@@ -82,3 +82,38 @@ Get audio alerts when you find new grail items!
 **Supported formats**: WAV, MP3, OGG
 
 ---
+
+# Info for developers
+
+## Installation
+
+Use a package manager of your choice (npm, yarn, etc.) in order to install all dependencies
+
+```bash
+yarn
+```
+
+## Usage
+
+Just run `start` script.
+
+```bash
+yarn start
+```
+
+## Packaging
+
+To generate the project package based on the OS you're running on, just run:
+
+```bash
+yarn package
+```
+
+## Contributing
+
+Pull requests are always welcome 😃.
+
+## License
+
+[ISC](https://choosealicense.com/licenses/isc/)
+
