@@ -71,6 +71,18 @@ export function App() {
     if (typeof settings.persistFoundOnDrop === 'undefined') {
       settings.persistFoundOnDrop = defaultSettings.persistFoundOnDrop;
     }
+    if (typeof settings.showOverlay === 'undefined') {
+      settings.showOverlay = defaultSettings.showOverlay;
+    }
+    if (typeof settings.overlayX === 'undefined') {
+      settings.overlayX = defaultSettings.overlayX;
+    }
+    if (typeof settings.overlayY === 'undefined') {
+      settings.overlayY = defaultSettings.overlayY;
+    }
+    if (typeof settings.overlayScale === 'undefined') {
+      settings.overlayScale = defaultSettings.overlayScale;
+    }
 
     appSettings.current = settings;
   }

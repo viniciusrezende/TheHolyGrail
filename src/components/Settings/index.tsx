@@ -13,6 +13,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import Slide from '@mui/material/Slide';
 import SettingsIcon from '@mui/icons-material/Settings';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import PictureInPictureIcon from '@mui/icons-material/PictureInPicture';
 import { TransitionProps } from '@mui/material/transitions';
 import { Trans, useTranslation } from 'react-i18next';
 import { GameMode, GameVersion, GrailType, Settings } from '../../@types/main.d';
@@ -160,6 +161,16 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
     }
   };
 
+  const handleOverlayToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const enabled = event.target.checked;
+    window.Main.saveSetting(settingsKeys.showOverlay, enabled);
+  };
+
+  const handleOverlayScaleChange = (event: Event, newValue: number | number[]) => {
+    const scale = Array.isArray(newValue) ? newValue[0] : newValue;
+    window.Main.saveSetting(settingsKeys.overlayScale, scale / 100);
+  };
+
   const handleChangelogOpen = async () => {
     try {
    
@@ -186,6 +197,7 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
   const gameMode: GameMode = appSettings.gameMode || GameMode.Both;
   const grailType: GrailType = appSettings.grailType || GrailType.Both;
   const currentVolume = Math.round((appSettings.soundVolume ?? 1) * 100);
+  const currentOverlayScale = Math.round((appSettings.overlayScale ?? 1) * 100);
 
   return (
     <>
@@ -461,6 +473,77 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
 
                     <Typography variant="caption" display="block" color="textSecondary" sx={{ fontSize: '0.85rem' }}>
                       {t('Supported formats: WAV, MP3, OGG')}
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+            </Box>
+          </ListItem>
+          <Divider />
+
+          {/* Overlay Settings */}
+          <ListItem>
+            <ListItemIcon sx={{ minWidth: 56 }}>
+              <PictureInPictureIcon />
+            </ListItemIcon>
+            <Box sx={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+              <ListItemText
+                primary={t('Overlay Window')}
+                secondary={t('Show a moveable overlay window with real-time stats')}
+                sx={{ maxWidth: '40%' }}
+              />
+              
+              <Box sx={{ maxWidth: '55%', minWidth: 300, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={!!appSettings.showOverlay}
+                      onChange={handleOverlayToggle}
+                    />
+                  }
+                  label={t('Show overlay')}
+                  sx={{ mb: 2, alignSelf: 'flex-end' }}
+                />
+
+                {appSettings.showOverlay && (
+                  <Box sx={{ 
+                    p: 3, 
+                    border: '1px solid #444', 
+                    borderRadius: 2, 
+                    bgcolor: 'rgba(255,255,255,0.02)',
+                    alignSelf: 'flex-start',
+                    width: '100%',
+                    maxWidth: 400
+                  }}>
+                    
+                    {/* Scale Control */}
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" gutterBottom sx={{ fontSize: '1rem', mb: 2 }}>
+                        {t('Overlay Size')}: {currentOverlayScale}%
+                      </Typography>
+                      <Box sx={{ width: '100%' }}>
+                        <Slider
+                          value={currentOverlayScale}
+                          onChange={handleOverlayScaleChange}
+                          min={70}
+                          max={150}
+                          step={5}
+                          marks={[
+                            { value: 70, label: '70%' },
+                            { value: 100, label: '100%' },
+                            { value: 130, label: '130%' },
+                            { value: 150, label: '150%' }
+                          ]}
+                          valueLabelDisplay="auto"
+                          valueLabelFormat={(value) => `${value}%`}
+                          size="medium"
+                          sx={{ height: 8 }}
+                        />
+                      </Box>
+                    </Box>
+
+                    <Typography variant="caption" display="block" color="textSecondary" sx={{ fontSize: '0.85rem' }}>
+                      {t('Adjust the size of the overlay window. Changes apply immediately.')}
                     </Typography>
                   </Box>
                 )}

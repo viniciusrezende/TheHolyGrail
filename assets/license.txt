@@ -1,7 +1,11 @@
 CHANGELOG:
 
+V.2.7.8 (Features)
+ - Added Overlay - Show stats over game window (drag to place )
+ - Added control size slider for overlay widget in settings
+
 V.2.7.7 (Features)
- - New audio settings added - pick your own sound file and adjust volume
+ - Added audio settings - pick your own sound file and adjust volume
  - Added changelog to settings
 
 v.2.7.6 (Bug Fixes)

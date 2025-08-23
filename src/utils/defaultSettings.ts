@@ -15,6 +15,10 @@ export const settingsKeys: {[name in keyof Settings]: name} = {
   persistFoundOnDrop: 'persistFoundOnDrop',
   customSoundFile: 'customSoundFile',
   soundVolume: 'soundVolume',
+  showOverlay: 'showOverlay',
+  overlayX: 'overlayX',
+  overlayY: 'overlayY',
+  overlayScale: 'overlayScale',
 }
 
 const defaultSettings: Settings = {
@@ -31,7 +35,11 @@ const defaultSettings: Settings = {
   [settingsKeys.enableSounds]: false,
   [settingsKeys.persistFoundOnDrop]: false,
   [settingsKeys.customSoundFile]: '',
-  [settingsKeys.soundVolume]: 1.0, 
+  [settingsKeys.soundVolume]: 1.0,
+  [settingsKeys.showOverlay]: false,
+  [settingsKeys.overlayX]: 100,
+  [settingsKeys.overlayY]: 100,
+  [settingsKeys.overlayScale]: 1.0,
 }
 
 export default defaultSettings;

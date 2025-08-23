@@ -5,6 +5,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-lock.yaml
 *.log
+CLAUDE.md
+.claude/
 
 # Electron/Forge/Webpack outputs
 .webpack/

@@ -33,6 +33,7 @@ export function setEventToReply(e: IpcMainEvent) {
 }
 
 let mainWindow: BrowserWindow | null
+let overlayWindow: BrowserWindow | null = null
 
 const assetsPath =
   process.env.NODE_ENV === 'production'
@@ -44,6 +45,71 @@ function setupAudioProtocol() {
     const url = request.url.substr(8); // Remove 'audio://' prefix
     callback({ path: url });
   });
+}
+
+function createOverlayWindow(x: number = 100, y: number = 100, scale: number = 1.0) {
+  if (overlayWindow) {
+    overlayWindow.show();
+    return;
+  }
+
+  const baseWidth = 300;
+  const baseHeight = 250;
+  const scaledWidth = Math.round(baseWidth * scale);
+  const scaledHeight = Math.round(baseHeight * scale);
+
+  overlayWindow = new BrowserWindow({
+    width: scaledWidth,
+    height: scaledHeight,
+    x: x,
+    y: y,
+    frame: false,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    resizable: false,
+    transparent: true,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      backgroundThrottling: false
+    }
+  });
+
+  overlayWindow.loadURL(`http://localhost:${streamPort}/?overlay=true`);
+  
+  if (process.env.ELECTRON_ENV === 'development') {
+    overlayWindow.webContents.openDevTools();
+  }
+
+  overlayWindow.on('closed', () => {
+    overlayWindow = null;
+  });
+
+  overlayWindow.on('moved', () => {
+    if (overlayWindow) {
+      const [x, y] = overlayWindow.getPosition();
+      settingsStore.saveSetting('overlayX', x);
+      settingsStore.saveSetting('overlayY', y);
+    }
+  });
+}
+
+function updateOverlaySize(scale: number) {
+  if (overlayWindow) {
+    const baseWidth = 300;
+    const baseHeight = 250;
+    const scaledWidth = Math.round(baseWidth * scale);
+    const scaledHeight = Math.round(baseHeight * scale);
+    overlayWindow.setSize(scaledWidth, scaledHeight);
+  }
+}
+
+function hideOverlayWindow() {
+  if (overlayWindow) {
+    overlayWindow.close();
+    overlayWindow = null;
+  }
 }
 
 function createWindow() {
@@ -92,9 +158,21 @@ function createWindow() {
   // registerUpdateDownloader(mainWindow);
   setupStreamFeed();
   runSilospenServer();
+  
+  // Initialize overlay if enabled
+  setTimeout(() => {
+    const settings = settingsStore.getSettings();
+    if (settings.showOverlay) {
+      createOverlayWindow(settings.overlayX, settings.overlayY, settings.overlayScale);
+    }
+  }, 1000); // Small delay to ensure stream server is ready
 }
 
 async function closeApp() {
+  if (overlayWindow) {
+    overlayWindow.close();
+    overlayWindow = null;
+  }
   itemsDatabase.shutdown();
   app.quit();
 }
@@ -132,6 +210,19 @@ async function registerListeners() {
     // Persisted-history toggle affects counts → push data, too
     if (key === 'persistFoundOnDrop') {
       updateDataToListeners();
+    }
+    // Handle overlay show/hide
+    if (key === 'showOverlay') {
+      if (value) {
+        const settings = settingsStore.getSettings();
+        createOverlayWindow(settings.overlayX, settings.overlayY, settings.overlayScale);
+      } else {
+        hideOverlayWindow();
+      }
+    }
+    // Handle overlay scale changes
+    if (key === 'overlayScale') {
+      updateOverlaySize(value as number);
     }
   });
 

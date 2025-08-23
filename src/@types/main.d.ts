@@ -92,7 +92,11 @@ export type Settings = {
   enableSounds: boolean,
   persistFoundOnDrop: boolean;
   customSoundFile: string,
-  soundVolume: number, 
+  soundVolume: number,
+  showOverlay: boolean,
+  overlayX: number,
+  overlayY: number,
+  overlayScale: number,
 }
 
 export type HolyGrailSeed = IHolyGrailData & {
