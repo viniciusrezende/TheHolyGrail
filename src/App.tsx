@@ -34,7 +34,7 @@ export function App() {
   const updateSettings = (settings: Settings) => {
     // @ts-ignore
     if (!settings.gameMode || settings.gameMode === '') {
-      settings.gameMode = GameMode.Both;
+      settings.gameMode = GameMode.Softcore;
     }
     // @ts-ignore
     if (!settings.saveDir) {

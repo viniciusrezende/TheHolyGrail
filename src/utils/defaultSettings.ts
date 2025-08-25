@@ -29,7 +29,7 @@ export const settingsKeys: {[name in keyof Settings]: name} = {
 const defaultSettings: Settings = {
   [settingsKeys.saveDir]: '',
   [settingsKeys.lang]: 'en',
-  [settingsKeys.gameMode]: GameMode.Both,
+  [settingsKeys.gameMode]: GameMode.Softcore,
   [settingsKeys.magicFind]: 0,
   [settingsKeys.playersNumber]: 1,
   [settingsKeys.gameVersion]: GameVersion.Resurrected,

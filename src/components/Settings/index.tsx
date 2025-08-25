@@ -293,7 +293,7 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
     setChangelogOpen(false);
   };
 
-  const gameMode: GameMode = appSettings.gameMode || GameMode.Both;
+  const gameMode: GameMode = appSettings.gameMode || GameMode.Softcore;
   const grailType: GrailType = appSettings.grailType || GrailType.Both;
   const currentVolume = Math.round((appSettings.soundVolume ?? 1) * 100);
   const currentOverlayScale = Math.round((appSettings.overlayScale ?? 1) * 100);
@@ -383,7 +383,6 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                   onChange={handleGameMode}
                   size="small"
                 >
-                  <MenuItem value={GameMode.Both}>{t("Both softcore and hardcore")}</MenuItem>
                   <MenuItem value={GameMode.Softcore}>{t("Only softcore")}</MenuItem>
                   <MenuItem value={GameMode.Hardcore}>{t("Only hardcore")}</MenuItem>
                   <MenuItem value={GameMode.Manual}>{t("Manual selection of items")}</MenuItem>

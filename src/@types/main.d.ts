@@ -59,7 +59,6 @@ export type AllSilospenItems = {
 
 /* eslint-disable no-unused-vars */
 export enum GameMode {
-  Both = 'both',
   Softcore = 'softcore',
   Hardcore = 'hardcore',
   Manual = 'manual',
