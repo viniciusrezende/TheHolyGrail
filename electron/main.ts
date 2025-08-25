@@ -9,6 +9,7 @@ import settingsStore from './lib/settings';
 import { setupStreamFeed, streamPort, updateDataToListeners, updateSettingsToListeners } from './lib/stream';
 import { registerUpdateDownloader } from './lib/update';
 import { getEverFound, markEverFound, clearEverFound } from './lib/everFound';
+import { webSyncManager } from './lib/webSync';
 import * as path from 'path'; // Add this line for the full path module
 import { statSync } from 'fs';
 import { protocol } from 'electron';
@@ -522,6 +523,25 @@ Please ensure the license.txt file exists in the assets folder and webpack is co
     } catch (error) {
       console.error('Error in getChangelogContent:', error);
       throw new Error(`Failed to read changelog: ${(error as Error).message}`);
+    }
+  });
+
+  // Web sync handlers
+  ipcMain.handle('testWebSync', async () => {
+    try {
+      return await webSyncManager.testConnection();
+    } catch (error) {
+      console.error('Test web sync error:', error);
+      return false;
+    }
+  });
+
+  ipcMain.handle('syncWebProgress', async () => {
+    try {
+      return await webSyncManager.syncProgress();
+    } catch (error) {
+      console.error('Sync web progress error:', error);
+      return false;
     }
   });
 

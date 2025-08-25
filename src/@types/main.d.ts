@@ -99,6 +99,9 @@ export type Settings = {
   overlayScale: number,
   overlayShowRecentFinds: boolean,
   overlayRecentFindsCount: number,
+  webSyncEnabled: boolean,
+  webSyncApiKey: string,
+  webSyncUrl: string,
 }
 
 export type HolyGrailSeed = IHolyGrailData & {

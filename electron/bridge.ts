@@ -112,6 +112,15 @@ export const api = {
     return await ipcRenderer.invoke('getChangelogContent');
   },
 
+  // NEW: Web sync functionality
+  testWebSync: async (): Promise<{ success: boolean; message: string; details?: any }> => {
+    return await ipcRenderer.invoke('testWebSync');
+  },
+
+  syncWebProgress: async (): Promise<boolean> => {
+    return await ipcRenderer.invoke('syncWebProgress');
+  },
+
   // generic event hook (keep last; note this clears existing listeners on that channel)
   on: (channel: string, callback: Function) => {
     // Don't remove listeners for specific reply channels

@@ -21,6 +21,9 @@ export const settingsKeys: {[name in keyof Settings]: name} = {
   overlayScale: 'overlayScale',
   overlayShowRecentFinds: 'overlayShowRecentFinds',
   overlayRecentFindsCount: 'overlayRecentFindsCount',
+  webSyncEnabled: 'webSyncEnabled',
+  webSyncApiKey: 'webSyncApiKey',
+  webSyncUrl: 'webSyncUrl',
 }
 
 const defaultSettings: Settings = {
@@ -44,6 +47,9 @@ const defaultSettings: Settings = {
   [settingsKeys.overlayScale]: 1.0,
   [settingsKeys.overlayShowRecentFinds]: true,
   [settingsKeys.overlayRecentFindsCount]: 5,
+  [settingsKeys.webSyncEnabled]: false,
+  [settingsKeys.webSyncApiKey]: '',
+  [settingsKeys.webSyncUrl]: 'http://localhost:3001',
 }
 
 export default defaultSettings;

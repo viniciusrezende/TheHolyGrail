@@ -17,7 +17,7 @@ import PictureInPictureIcon from '@mui/icons-material/PictureInPicture';
 import { TransitionProps } from '@mui/material/transitions';
 import { Trans, useTranslation } from 'react-i18next';
 import { GameMode, GameVersion, GrailType, Settings } from '../../@types/main.d';
-import { Grid, Accordion, AccordionDetails, AccordionSummary, Divider, FormControl, MenuItem, Select, SelectChangeEvent, Checkbox, FormControlLabel, Box, Slider, Alert } from '@mui/material';
+import { Grid, Accordion, AccordionDetails, AccordionSummary, Divider, FormControl, MenuItem, Select, SelectChangeEvent, Checkbox, FormControlLabel, Box, Slider, Alert, TextField, Button, CircularProgress } from '@mui/material';
 import FolderIcon from '@mui/icons-material/Folder';
 import GroupIcon from '@mui/icons-material/Group';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -31,11 +31,13 @@ import i18n from '../../i18n';
 import { settingsKeys } from '../../utils/defaultSettings';
 import cc from '../../../assets/cc.svg';
 import { clearPrevUniqItemsFound } from '../../utils/objects';
-import Button from '@mui/material/Button';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { testGrailSound } from '../../utils/soundUtils';
 import HistoryIcon from '@mui/icons-material/History';
 import ClearAllIcon from '@mui/icons-material/ClearAll';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import LinkIcon from '@mui/icons-material/Link';
+import SyncIcon from '@mui/icons-material/Sync';
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -57,6 +59,8 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
   const [soundFileError, setSoundFileError] = useState<string>('');
   const [changelogOpen, setChangelogOpen] = useState(false);
   const [changelogContent, setChangelogContent] = useState<string>('');
+  const [connectionStatus, setConnectionStatus] = useState<{ message: string; success?: boolean } | null>(null);
+  const [testingConnection, setTestingConnection] = useState(false);
   const { t } = useTranslation();
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -187,6 +191,82 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
       await window.Main.clearRecentFinds();
     } catch (e) {
       console.error('Error clearing recent finds:', e);
+    }
+  };
+
+  const handleWebSyncToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const enabled = event.target.checked;
+    window.Main.saveSetting(settingsKeys.webSyncEnabled, enabled);
+  };
+
+  const handleWebSyncApiKey = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const apiKey = event.target.value;
+    window.Main.saveSetting(settingsKeys.webSyncApiKey, apiKey);
+  };
+
+  const handleWebSyncUrl = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const url = event.target.value;
+    window.Main.saveSetting(settingsKeys.webSyncUrl, url);
+  };
+
+  const handleTestSync = async () => {
+    setTestingConnection(true);
+    setConnectionStatus(null);
+    
+    try {
+      console.log('Testing web sync connection...');
+      const result = await window.Main.testWebSync();
+      
+      setConnectionStatus({
+        message: result.message,
+        success: result.success
+      });
+      
+      if (result.success) {
+        console.log('✅ Web sync test successful:', result.message);
+      } else {
+        console.error('❌ Web sync test failed:', result.message);
+      }
+    } catch (e) {
+      console.error('Error testing sync:', e);
+      setConnectionStatus({
+        message: 'Connection test failed due to an unexpected error',
+        success: false
+      });
+    } finally {
+      setTestingConnection(false);
+    }
+  };
+
+  const [syncing, setSyncing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<{ message: string; success: boolean } | null>(null);
+
+  const handleForceSync = async () => {
+    setSyncing(true);
+    setSyncStatus(null);
+    
+    try {
+      console.log('Force syncing progress to web app...');
+      const success = await window.Main.syncWebProgress();
+      
+      setSyncStatus({
+        message: success ? 'Progress synced successfully!' : 'Sync failed - please check your connection',
+        success
+      });
+      
+      if (success) {
+        console.log('✅ Force sync successful');
+      } else {
+        console.error('❌ Force sync failed');
+      }
+    } catch (e) {
+      console.error('Error during force sync:', e);
+      setSyncStatus({
+        message: 'Sync failed due to an unexpected error',
+        success: false
+      });
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -627,6 +707,145 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
 
                     <Typography variant="caption" display="block" color="textSecondary" sx={{ fontSize: '0.85rem' }}>
                       {t('Configure overlay appearance and recent finds display. Changes apply immediately.')}
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+            </Box>
+          </ListItem>
+          <Divider />
+
+          {/* Web Sync Settings */}
+          <ListItem>
+            <ListItemIcon sx={{ minWidth: 56 }}>
+              <CloudUploadIcon />
+            </ListItemIcon>
+            <Box sx={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+              <ListItemText
+                primary={t('Web Sync')}
+                secondary={t('Share your progress online and track achievements')}
+                sx={{ maxWidth: '40%' }}
+              />
+              
+              <Box sx={{ maxWidth: '55%', minWidth: 300, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={!!appSettings.webSyncEnabled}
+                      onChange={handleWebSyncToggle}
+                    />
+                  }
+                  label={t('Enable Web Sync')}
+                  sx={{ mb: 2, alignSelf: 'flex-end' }}
+                />
+
+                {appSettings.webSyncEnabled && (
+                  <Box sx={{ 
+                    p: 3, 
+                    border: '1px solid #444', 
+                    borderRadius: 2, 
+                    bgcolor: 'rgba(255,255,255,0.02)',
+                    alignSelf: 'flex-start',
+                    width: '100%',
+                    maxWidth: 500
+                  }}>
+                    
+                    {/* API Key Field */}
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="subtitle2" gutterBottom sx={{ fontSize: '1rem', mb: 2 }}>
+                        {t('API Key')}
+                      </Typography>
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        placeholder="hg_your_api_key_here"
+                        value={appSettings.webSyncApiKey || ''}
+                        onChange={handleWebSyncApiKey}
+                        type="password"
+                        sx={{ mb: 2 }}
+                        helperText={t('Get your API key from the web tracker')}
+                      />
+                    </Box>
+
+                    {/* Web URL Field */}
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="subtitle2" gutterBottom sx={{ fontSize: '1rem', mb: 2 }}>
+                        {t('Web Tracker URL')}
+                      </Typography>
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        placeholder="http://localhost:3001"
+                        value={appSettings.webSyncUrl || ''}
+                        onChange={handleWebSyncUrl}
+                        sx={{ mb: 2 }}
+                        helperText={t('URL of your Holy Grail web tracker')}
+                      />
+                    </Box>
+
+                    {/* Test Sync Button */}
+                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                      <Button
+                        variant="contained"
+                        onClick={handleTestSync}
+                        startIcon={testingConnection ? <CircularProgress size={16} color="inherit" /> : <LinkIcon />}
+                        color="primary"
+                        sx={{ py: 1.5, px: 3 }}
+                        size="medium"
+                        disabled={!appSettings.webSyncApiKey || !appSettings.webSyncUrl || testingConnection}
+                      >
+                        {testingConnection ? 'Testing...' : t('Test Connection')}
+                      </Button>
+
+                      <Button
+                        variant="contained"
+                        onClick={handleForceSync}
+                        startIcon={syncing ? <CircularProgress size={16} color="inherit" /> : <SyncIcon />}
+                        color="secondary"
+                        sx={{ py: 1.5, px: 3 }}
+                        size="medium"
+                        disabled={!appSettings.webSyncApiKey || !appSettings.webSyncUrl || syncing || testingConnection}
+                      >
+                        {syncing ? 'Syncing...' : t('Force Sync')}
+                      </Button>
+                      
+                      {appSettings.webSyncUrl && (
+                        <Button
+                          variant="outlined"
+                          onClick={() => window.Main.openUrl(appSettings.webSyncUrl)}
+                          startIcon={<LinkIcon />}
+                          sx={{ py: 1.5, px: 3 }}
+                          size="medium"
+                        >
+                          {t('Open Web Tracker')}
+                        </Button>
+                      )}
+                    </Box>
+
+                    {/* Connection Status Feedback */}
+                    {connectionStatus && (
+                      <Alert 
+                        severity={connectionStatus.success ? 'success' : 'error'}
+                        sx={{ mt: 2 }}
+                        onClose={() => setConnectionStatus(null)}
+                      >
+                        {connectionStatus.message}
+                      </Alert>
+                    )}
+
+                    {/* Sync Status Feedback */}
+                    {syncStatus && (
+                      <Alert 
+                        severity={syncStatus.success ? 'success' : 'error'}
+                        sx={{ mt: 2 }}
+                        onClose={() => setSyncStatus(null)}
+                      >
+                        {syncStatus.message}
+                      </Alert>
+                    )}
+
+                    <Typography variant="caption" display="block" color="textSecondary" sx={{ fontSize: '0.85rem', mt: 2 }}>
+                      {t('Your progress will sync automatically when new items are found. All data is encrypted and secure.')}
                     </Typography>
                   </Box>
                 )}

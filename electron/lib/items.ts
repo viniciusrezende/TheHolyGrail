@@ -15,6 +15,7 @@ import { buildFlattenObjectCacheKey, flattenObject, isRune, simplifyItemName } f
 import { eventToReply, setEventToReply } from '../main';
 import settingsStore from './settings';
 import { updateDataToListeners } from './stream';
+import { webSyncManager } from './webSync';
 import { runesMapping } from './runesMapping';
 import { getSaveGamesFolder } from 'platform-folders';
 import { markManyEverFound } from './everFound';
@@ -461,16 +462,21 @@ class ItemsStore {
 
       event.reply('openFolder', results);
 
-      // NEW: Check for new items and play sound if enabled
-      if (playSounds && s.enableSounds) {
-        const hasNewItems = this.checkForNewItems(results);
-        if (hasNewItems) {
-          event.sender.send('triggerGrailSound');
-        }
+      // Check for new items first
+      const hasNewItems = this.checkForNewItems(results);
+
+      // NEW: Play sound if enabled and new items were found
+      if (playSounds && s.enableSounds && hasNewItems) {
+        event.sender.send('triggerGrailSound');
       }
 
       this.currentData = results;
       updateDataToListeners();
+      
+      // Sync to web if enabled and new items were found
+      if (hasNewItems) {
+        webSyncManager.syncProgress().catch(console.error);
+      }
     });
   }
 
