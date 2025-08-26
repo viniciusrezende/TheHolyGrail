@@ -34,6 +34,61 @@ export class WebSyncManager {
   private lastSyncTime = 0;
   private readonly SYNC_COOLDOWN = 5000; // 5 seconds between syncs
 
+  isGrailConfigurationLocked(): boolean {
+    const settings = settingsStore.getSettings();
+    return settings.grailConfigurationLocked;
+  }
+
+  unlockGrailConfiguration(): void {
+    settingsStore.saveSetting('grailConfigurationLocked', false);
+    console.log('🔓 Grail configuration unlocked - can now change settings');
+  }
+
+  async validateConfigurationConsistency(): Promise<{ valid: boolean; message?: string; lockedConfig?: any }> {
+    const settings = settingsStore.getSettings();
+    
+    if (!settings.webSyncEnabled || !settings.webSyncApiKey || !settings.webSyncUrl) {
+      return { valid: true }; // No sync configured, so no validation needed
+    }
+
+    try {
+      // Test the current configuration by making a test sync call
+      const syncData = this.prepareData();
+      const response = await this.makeRequest(
+        `${settings.webSyncUrl.replace(/\/$/, '')}/api/progress/sync`,
+        'POST',
+        syncData
+      );
+
+      if (response.status === 403 && response.data?.error?.includes('Configuration locked')) {
+        // Configuration mismatch detected
+        return {
+          valid: false,
+          message: 'Your local settings don\'t match the locked server configuration.',
+          lockedConfig: response.data.lockedConfig
+        };
+      }
+
+      return { valid: true };
+    } catch (error) {
+      console.warn('Could not validate configuration consistency:', error);
+      return { valid: true }; // Assume valid if we can't check
+    }
+  }
+
+  applyLockedConfiguration(lockedConfig: any): void {
+    const { GameMode, GrailType } = require('../../src/@types/main.d');
+    
+    // Apply the locked configuration from the server
+    settingsStore.saveSetting('gameMode', lockedConfig.gameMode);
+    settingsStore.saveSetting('grailType', lockedConfig.grailType);
+    settingsStore.saveSetting('grailRunes', lockedConfig.includeRunes);
+    settingsStore.saveSetting('grailRunewords', lockedConfig.includeRunewords);
+    settingsStore.saveSetting('grailConfigurationLocked', true);
+
+    console.log('🔧 Applied locked configuration from server:', lockedConfig);
+  }
+
   async syncProgress(): Promise<boolean> {
     const settings = settingsStore.getSettings();
     
@@ -62,6 +117,12 @@ export class WebSyncManager {
       
       if (result.success) {
         console.log('✅ Progress synced to web tracker');
+        
+        // Lock grail configuration after successful sync to prevent mid-grail changes
+        if (!settings.grailConfigurationLocked) {
+          settingsStore.saveSetting('grailConfigurationLocked', true);
+          console.log('🔒 Grail configuration locked to maintain data integrity');
+        }
       } else {
         console.error(`❌ Failed to sync progress: ${result.message}`);
       }
@@ -202,6 +263,17 @@ export class WebSyncManager {
         return { 
           success: false, 
           message: 'Invalid API key - please check your authentication' 
+        };
+      } else if (response.status === 403 && response.data?.error?.includes('Configuration locked')) {
+        // Handle grail configuration locked error
+        const lockedConfig = response.data.lockedConfig;
+        const configDetails = lockedConfig ? 
+          `\n\nCurrent locked settings:\n• Game Mode: ${lockedConfig.gameMode}\n• Grail Type: ${lockedConfig.grailType}\n• Include Runes: ${lockedConfig.includeRunes ? 'Yes' : 'No'}\n• Include Runewords: ${lockedConfig.includeRunewords ? 'Yes' : 'No'}` 
+          : '';
+        
+        return { 
+          success: false, 
+          message: `⚠️ Grail Configuration Locked\n\nYour grail configuration cannot be changed mid-grail to maintain data integrity.${configDetails}\n\nTo change settings:\n1. Go to the webapp settings page\n2. Use "Clear Grail Progress" to reset\n3. Restart with your desired settings` 
         };
       } else {
         return { 

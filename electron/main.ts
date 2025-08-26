@@ -545,6 +545,24 @@ Please ensure the license.txt file exists in the assets folder and webpack is co
     }
   });
 
+  // Grail configuration validation handlers
+  ipcMain.handle('validateGrailConfiguration', async () => {
+    try {
+      return await webSyncManager.validateConfigurationConsistency();
+    } catch (error) {
+      console.error('Validate grail configuration error:', error);
+      return { valid: true }; // Assume valid if we can't check
+    }
+  });
+
+  ipcMain.on('applyLockedConfiguration', (_, lockedConfig) => {
+    try {
+      webSyncManager.applyLockedConfiguration(lockedConfig);
+    } catch (error) {
+      console.error('Apply locked configuration error:', error);
+    }
+  });
+
   ipcMain.handle('confirmAndClearEverFound', async () => {
     const { response } = await dialog.showMessageBox({
       type: 'warning',

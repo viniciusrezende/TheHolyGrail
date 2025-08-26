@@ -121,6 +121,15 @@ export const api = {
     return await ipcRenderer.invoke('syncWebProgress');
   },
 
+  // NEW: Grail configuration validation and management
+  validateGrailConfiguration: async (): Promise<{ valid: boolean; message?: string; lockedConfig?: any }> => {
+    return await ipcRenderer.invoke('validateGrailConfiguration');
+  },
+
+  applyLockedConfiguration: (lockedConfig: any): void => {
+    ipcRenderer.send('applyLockedConfiguration', lockedConfig);
+  },
+
   // generic event hook (keep last; note this clears existing listeners on that channel)
   on: (channel: string, callback: Function) => {
     // Don't remove listeners for specific reply channels

@@ -24,6 +24,7 @@ export const settingsKeys: {[name in keyof Settings]: name} = {
   webSyncEnabled: 'webSyncEnabled',
   webSyncApiKey: 'webSyncApiKey',
   webSyncUrl: 'webSyncUrl',
+  grailConfigurationLocked: 'grailConfigurationLocked',
 }
 
 const defaultSettings: Settings = {
@@ -50,6 +51,7 @@ const defaultSettings: Settings = {
   [settingsKeys.webSyncEnabled]: false,
   [settingsKeys.webSyncApiKey]: '',
   [settingsKeys.webSyncUrl]: 'http://localhost:3001',
+  [settingsKeys.grailConfigurationLocked]: false,
 }
 
 export default defaultSettings;

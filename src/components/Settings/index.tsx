@@ -199,9 +199,40 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
     window.Main.saveSetting(settingsKeys.webSyncEnabled, enabled);
   };
 
-  const handleWebSyncApiKey = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleWebSyncApiKey = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const apiKey = event.target.value;
     window.Main.saveSetting(settingsKeys.webSyncApiKey, apiKey);
+    
+    // If API key is being set (not cleared), validate configuration consistency
+    if (apiKey && apiKey.startsWith('hg_')) {
+      try {
+        const validation = await window.Main.validateGrailConfiguration();
+        if (!validation.valid && validation.lockedConfig) {
+          // Show dialog asking user if they want to apply server settings
+          const apply = window.confirm(
+            `⚠️ Configuration Mismatch Detected!\n\n` +
+            `Your local settings don't match the server's locked configuration:\n\n` +
+            `Server Settings:\n` +
+            `• Game Mode: ${validation.lockedConfig.gameMode}\n` +
+            `• Grail Type: ${validation.lockedConfig.grailType}\n` +
+            `• Include Runes: ${validation.lockedConfig.includeRunes ? 'Yes' : 'No'}\n` +
+            `• Include Runewords: ${validation.lockedConfig.includeRunewords ? 'Yes' : 'No'}\n\n` +
+            `Would you like to apply the server's settings to match your existing grail?\n\n` +
+            `Click OK to apply server settings, or Cancel to remove the API key.`
+          );
+          
+          if (apply) {
+            window.Main.applyLockedConfiguration(validation.lockedConfig);
+            console.log('✅ Applied server configuration to local settings');
+          } else {
+            // Clear the API key if user doesn't want to apply server settings
+            window.Main.saveSetting(settingsKeys.webSyncApiKey, '');
+          }
+        }
+      } catch (error) {
+        console.warn('Could not validate configuration:', error);
+      }
+    }
   };
 
   const handleWebSyncUrl = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -297,6 +328,7 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
   const grailType: GrailType = appSettings.grailType || GrailType.Both;
   const currentVolume = Math.round((appSettings.soundVolume ?? 1) * 100);
   const currentOverlayScale = Math.round((appSettings.overlayScale ?? 1) * 100);
+  const isGrailConfigLocked = appSettings.grailConfigurationLocked || false;
 
   return (
     <>
@@ -382,11 +414,17 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                   value={gameMode}
                   onChange={handleGameMode}
                   size="small"
+                  disabled={isGrailConfigLocked}
                 >
                   <MenuItem value={GameMode.Softcore}>{t("Only softcore")}</MenuItem>
                   <MenuItem value={GameMode.Hardcore}>{t("Only hardcore")}</MenuItem>
                   <MenuItem value={GameMode.Manual}>{t("Manual selection of items")}</MenuItem>
                 </Select>
+                {isGrailConfigLocked && (
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                    🔒 Locked after first sync - delete grail in webapp to change
+                  </Typography>
+                )}
               </FormControl>
             </Box>
           </ListItem>
@@ -410,26 +448,40 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                     value={grailType}
                     onChange={handleGrailType}
                     size="small"
+                    disabled={isGrailConfigLocked}
                   >
                     <MenuItem value={GrailType.Both}>{t("Both normal and ethereal items")}</MenuItem>
                     <MenuItem value={GrailType.Normal}>{t("Only normal items")}</MenuItem>
                     <MenuItem value={GrailType.Ethereal}>{t("Only ethereal items")}</MenuItem>
                     <MenuItem value={GrailType.Each}>{t("Normal and ethereal items separately counted")}</MenuItem>
                   </Select>
+                  {isGrailConfigLocked && (
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                      🔒 Configuration locked to maintain grail integrity
+                    </Typography>
+                  )}
                 </FormControl>
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'flex-start' }}>
                   <FormControlLabel
-                    control={<Checkbox checked={appSettings.grailRunes} onChange={handleRunes} />}
+                    control={<Checkbox checked={appSettings.grailRunes} onChange={handleRunes} disabled={isGrailConfigLocked} />}
                     label={i18n.t`Include Runes`}
                     sx={{ '& .MuiFormControlLabel-label': { width: '200px' } }}
                   />
                   
                   <FormControlLabel
-                    control={<Checkbox checked={appSettings.grailRunewords} onChange={handleRunewords} />}
+                    control={<Checkbox checked={appSettings.grailRunewords} onChange={handleRunewords} disabled={isGrailConfigLocked} />}
                     label={i18n.t`Include Runewords`}
                     sx={{ '& .MuiFormControlLabel-label': { width: '200px' } }}
                   />
+                  
+                  {isGrailConfigLocked && (
+                    <Alert severity="info" sx={{ mt: 1, maxWidth: 300 }}>
+                      <Typography variant="body2">
+                        Settings locked after first sync. To change configuration, delete your grail progress in the webapp settings and start fresh.
+                      </Typography>
+                    </Alert>
+                  )}
 
                   <FormControlLabel
                     control={
@@ -737,6 +789,14 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                   label={t('Enable Web Sync')}
                   sx={{ mb: 2, alignSelf: 'flex-end' }}
                 />
+
+                {!isGrailConfigLocked && appSettings.webSyncEnabled && (
+                  <Alert severity="warning" sx={{ mb: 2, maxWidth: 500 }}>
+                    <Typography variant="body2">
+                      ⚠️ <strong>First Sync Warning:</strong> Your grail configuration (game mode, grail type, runes/runewords) will be locked after your first sync to maintain data integrity. Make sure your settings are correct before syncing!
+                    </Typography>
+                  </Alert>
+                )}
 
                 {appSettings.webSyncEnabled && (
                   <Box sx={{ 
