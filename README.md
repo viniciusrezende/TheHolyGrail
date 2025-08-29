@@ -23,11 +23,9 @@ Also checkout https://github.com/pyrosplat/TheHolyGrail-Public-Tracker - Web app
 - **Clear persistent history** (with confirmation dialog):  
   Wipes the "Previously found" history and updates totals/badges instantly.  
   > ⚠️ **Warning:** This is **permanent**. Your stash is not touched.
-- **Sound notifications** for newly found items:
+- **Custom Sound notifications** for newly found items:
   - Customizable volume control
   - Support for custom sound files (WAV, MP3, OGG)
-  - Test sound functionality
-  - Built-in default notification sound
 - **Theme & font tweaks** for a cleaner look.
 
 ## 🔊 Sound Notifications
@@ -39,8 +37,6 @@ Get audio alerts when you find new grail items!
 
 > **Tip**: Use a distinctive sound that won't get lost in game audio. Short, clear notification sounds work best!
 
-**Supported formats**: WAV, MP3, OGG
-
 ---
 
 ## 🪟 Overlay: Live Grail Stats (On-Top / Stream-Ready)
@@ -50,10 +46,9 @@ Display your live Holy Grail progress right over the game window—perfect witho
 <p align="center"> <img src="docs/images/overlay_v1.png" alt="Overlay showing live grail stats over D2R" width="900"/> </p>
 
 **Features**
-- Completion % and found / total (updates in real time)
 - Compact, high-contrast design that stays readable over D2R
-- It does not modify the game in any way.
 - Adjustable size in settings
+- Optional recent finds item list
 
 ---
 
