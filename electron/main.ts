@@ -555,6 +555,16 @@ Please ensure the license.txt file exists in the assets folder and webpack is co
     }
   });
 
+  ipcMain.handle('checkConfigurationUnlock', async () => {
+    try {
+      await webSyncManager.checkAndUnlockConfiguration();
+      return { success: true };
+    } catch (error) {
+      console.error('Configuration unlock check error:', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+  });
+
   ipcMain.on('applyLockedConfiguration', (_, lockedConfig) => {
     try {
       webSyncManager.applyLockedConfiguration(lockedConfig);
@@ -598,6 +608,9 @@ app.whenReady()
     
     // Clear recent finds on startup
     itemsDatabase.clearRecentFinds();
+    
+    // Check if grail configuration should be unlocked
+    webSyncManager.checkAndUnlockConfiguration();
     
     createWindow();
   })

@@ -130,6 +130,11 @@ export const api = {
     ipcRenderer.send('applyLockedConfiguration', lockedConfig);
   },
 
+  // NEW: Check if configuration should be unlocked
+  checkConfigurationUnlock: (): Promise<void> => {
+    return ipcRenderer.invoke('checkConfigurationUnlock');
+  },
+
   // generic event hook (keep last; note this clears existing listeners on that channel)
   on: (channel: string, callback: Function) => {
     // Don't remove listeners for specific reply channels

@@ -44,6 +44,47 @@ export class WebSyncManager {
     console.log('🔓 Grail configuration unlocked - can now change settings');
   }
 
+  async checkAndUnlockConfiguration(): Promise<void> {
+    const settings = settingsStore.getSettings();
+    
+    // Only check if configuration is currently locked and web sync was previously enabled
+    if (!settings.grailConfigurationLocked) {
+      return;
+    }
+
+    // If web sync URL is not configured, we can't check, so don't unlock
+    if (!settings.webSyncUrl) {
+      return;
+    }
+
+    // If API key was deleted but web sync was enabled, we should check for unlock
+    console.log('🔍 Checking if configuration should be unlocked...');
+
+    try {
+      const response = await this.makeRequest(
+        `${settings.webSyncUrl.replace(/\/$/, '')}/api/progress/unlock`,
+        'POST'
+      );
+
+      console.log('Unlock check response:', response);
+
+      if (response.status === 200 && response.data?.shouldUnlock) {
+        this.unlockGrailConfiguration();
+        console.log('🔓 Configuration unlocked after checking webapp status');
+      } else {
+        console.log('🔒 Configuration remains locked based on webapp response');
+      }
+    } catch (error) {
+      console.warn('Could not check unlock status:', error);
+      
+      // If there's no API key, assume it was deleted and unlock
+      if (!settings.webSyncApiKey) {
+        console.log('🔓 No API key found - unlocking configuration');
+        this.unlockGrailConfiguration();
+      }
+    }
+  }
+
   async validateConfigurationConsistency(): Promise<{ valid: boolean; message?: string; lockedConfig?: any }> {
     const settings = settingsStore.getSettings();
     

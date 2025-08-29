@@ -435,7 +435,7 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                         fontSize: '0.9rem'
                       }}
                     >
-                      {t("App Modified by PyroSplat")}
+                      {t("App modified by PyroSplat")}
                     </Typography>
                   </Box>
                 </ListItem>
