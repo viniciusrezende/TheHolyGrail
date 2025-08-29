@@ -51,7 +51,7 @@ const isItemEthereal = (item: any): boolean => {
 
 // Compose the display label for the recent item row.
 // - Uses fixed name mapping.
-// - Optionally appends (Ethereal)/(Non-Ethereal) if track-each is on.
+// - No longer appends ethereal suffixes since we have the ETH badge
 // - Still runs your existing prettifier.
 const buildRecentItemLabel = (
   rawName: string,
@@ -60,11 +60,6 @@ const buildRecentItemLabel = (
   probeItem?: any
 ): string => {
   const base = resolveFixedName(rawName);
-  if (isTrackEachEnabled(settings)) {
-    const eth = isItemEthereal(probeItem);
-    const suffix = eth ? ' (Ethereal)' : ' (Non-Ethereal)';
-    return formatItemName(base + suffix);
-  }
   return formatItemName(base);
 };
 
@@ -308,12 +303,14 @@ export default function StreamApp() {
                 const itemCount = settings.overlayRecentFindsCount || 5;
                 const isCompactMode = itemCount > 7;
                 const eth = isItemEthereal(find);
+                const baseFontSize = settings.overlayRecentFindsFontSize || 14;
+                const fontSize = isCompactMode ? Math.max(baseFontSize - 2, 10) : baseFontSize;
 
                 return (
                   <div
                     key={`${find.name}-${find.timestamp}`}
                     style={{
-                      fontSize: isCompactMode ? '14px' : '16px',
+                      fontSize: `${fontSize}px`,
                       color: '#fff',
                       marginBottom: index < itemCount - 1 ? (isCompactMode ? '2px' : '3px') : '0',
                       padding: isCompactMode ? '3px 5px' : '4px 6px',
@@ -329,21 +326,43 @@ export default function StreamApp() {
                     }}
                     title={eth ? 'Ethereal' : 'Non-Ethereal'}
                   >
-                    {/* Item label (fixed name + optional "(Ethereal)/(Non-Ethereal)" when track-each is on) */}
+                    {/* Item label with ETH badge */}
                     <div style={{
                       fontWeight: 'normal',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
                       flex: '1 1 40%',
-                      minWidth: 0
+                      minWidth: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
                     }}>
-                      {buildRecentItemLabel(find.name, settings, formatItemName, find)}
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {buildRecentItemLabel(find.name, settings, formatItemName, find)}
+                      </span>
+                      {/* ETH badge */}
+                      {eth && (
+                        <div style={{
+                          fontSize: `${Math.max(fontSize * 0.7, 8)}px`,
+                          fontWeight: 700,
+                          color: '#ccc',
+                          border: '1px solid rgba(204,204,204,0.6)',
+                          borderRadius: '6px',
+                          padding: isCompactMode ? '1px 4px' : '2px 6px',
+                          whiteSpace: 'nowrap',
+                          userSelect: 'none',
+                          opacity: 0.95,
+                          flexShrink: 0
+                        }}>
+                          ETH
+                        </div>
+                      )}
                     </div>
 
                     {/* Type */}
                     <div style={{
-                      fontSize: isCompactMode ? '9px' : '10px',
+                      fontSize: `${Math.max(fontSize * 0.8, 9)}px`,
                       color: '#ccc',
                       opacity: 0.9,
                       textAlign: 'center',
@@ -356,26 +375,9 @@ export default function StreamApp() {
                       {find.type || 'Item'}
                     </div>
 
-                    {/* ETH badge */}
-                    {eth && (
-                      <div style={{
-                        fontSize: isCompactMode ? '9px' : '10px',
-                        fontWeight: 700,
-                        border: '1px solid rgba(255,255,255,0.6)',
-                        borderRadius: '6px',
-                        padding: isCompactMode ? '1px 4px' : '2px 6px',
-                        marginRight: '6px',
-                        whiteSpace: 'nowrap',
-                        userSelect: 'none',
-                        opacity: 0.95
-                      }}>
-                        ETH
-                      </div>
-                    )}
-
                     {/* Time ago */}
                     <div style={{
-                      fontSize: isCompactMode ? '9px' : '10px',
+                      fontSize: `${Math.max(fontSize * 0.8, 9)}px`,
                       color: '#ccc',
                       opacity: 0.9,
                       flex: '0 0 auto',

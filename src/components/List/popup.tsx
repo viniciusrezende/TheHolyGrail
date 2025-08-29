@@ -214,7 +214,21 @@ export default function Popup({
                   <DropCalcSettings appSettings={appSettings} />
                 </Grid>
                 <Grid item xs={2}>
-                  <Button variant='outlined' fullWidth onClick={() => { window.Main.getSilospen(itemType, itemName); }}>{t("Update")}</Button>
+                  <Button 
+                    variant='outlined' 
+                    fullWidth 
+                    onClick={() => { window.Main.getSilospen(itemType, itemName); }}
+                    sx={{
+                      borderColor: '#CC5F43',
+                      color: '#CC5F43',
+                      '&:hover': {
+                        borderColor: '#CC5F43',
+                        backgroundColor: 'rgba(204, 95, 67, 0.08)',
+                      }
+                    }}
+                  >
+                    {t("Update")}
+                  </Button>
                 </Grid>
               </Grid>
             </Grid>

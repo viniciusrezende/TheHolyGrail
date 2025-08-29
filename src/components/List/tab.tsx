@@ -520,10 +520,15 @@ export function TabPanel(props: TabPanelProps) {
             <Button
               variant="text"
               onClick={() => window.Main.openUrl(calculatorLink)}
-              style={{
+              sx={{
                 display: "block",
                 textAlign: "left",
-                paddingLeft: 50,
+                paddingLeft: "50px",
+                color: '#CC5F43',
+                '&:hover': {
+                  color: '#CC5F43',
+                  backgroundColor: 'rgba(204, 95, 67, 0.08)',
+                }
               }}
             >
               <Calculate style={{ position: 'absolute', left: 10, top: 12, fontSize: 32 }} />

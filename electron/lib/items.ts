@@ -88,26 +88,27 @@ class ItemsStore {
       return 'Runeword';
     }
 
-    // Check if it's in sets
+    // Check if it's in sets - don't include ethereal in category name
     const holyGrailData = getHolyGrailSeedData(settings, false);
     if (holyGrailData.sets) {
       const setsFlat = flattenObject(holyGrailData.sets);
       if (setsFlat[simplifiedId]) {
-        return isEthereal ? 'Ethereal Set' : 'Set';
+        return 'Set';
       }
     }
 
-    // Check if it's a unique item
+    // Check if it's a unique item - don't include ethereal in category name
     if (holyGrailData.uniques) {
       const uniquesFlat = flattenObject(holyGrailData.uniques);
       if (uniquesFlat[simplifiedId]) {
-        return isEthereal ? 'Ethereal Unique' : 'Unique';
+        return 'Unique';
       }
     }
 
-    // If ethereal but not categorized above
-    if (isEthereal) {
-      return 'Ethereal';
+    // If ethereal but not found in specific categories, it's likely a unique item
+    // Also check if item name contains "ethereal" (case insensitive)
+    if (isEthereal || itemName.toLowerCase().includes('ethereal')) {
+      return 'Unique';
     }
 
     return 'Item';

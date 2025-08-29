@@ -98,6 +98,7 @@ export type Settings = {
   overlayScale: number,
   overlayShowRecentFinds: boolean,
   overlayRecentFindsCount: number,
+  overlayRecentFindsFontSize: number,
   webSyncEnabled: boolean,
   webSyncApiKey: string,
   webSyncUrl: string,

@@ -199,6 +199,11 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
     window.Main.saveSetting(settingsKeys.overlayRecentFindsCount, count);
   };
 
+  const handleOverlayRecentFindsFontSizeChange = (event: Event, newValue: number | number[]) => {
+    const fontSize = Array.isArray(newValue) ? newValue[0] : newValue;
+    window.Main.saveSetting(settingsKeys.overlayRecentFindsFontSize, fontSize);
+  };
+
   const handleClearRecentFinds = async () => {
     try {
       await window.Main.clearRecentFinds();
@@ -399,6 +404,14 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                       onClick={handleChangelogOpen}
                       startIcon={<HistoryIcon />}
                       size="small"
+                      sx={{
+                        borderColor: '#CC5F43',
+                        color: '#CC5F43',
+                        '&:hover': {
+                          borderColor: '#CC5F43',
+                          backgroundColor: 'rgba(204, 95, 67, 0.08)',
+                        }
+                      }}
                     >
                       {t("Changelog")}
                     </Button>
@@ -417,7 +430,19 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                       secondary={appSettings.saveDir || ''}
                       sx={{ maxWidth: '60%' }}
                     />
-                    <Button variant="outlined" onClick={handleOpenFolder} size="small">
+                    <Button 
+                      variant="outlined" 
+                      onClick={handleOpenFolder} 
+                      size="small"
+                      sx={{
+                        borderColor: '#CC5F43',
+                        color: '#CC5F43',
+                        '&:hover': {
+                          borderColor: '#CC5F43',
+                          backgroundColor: 'rgba(204, 95, 67, 0.08)',
+                        }
+                      }}
+                    >
                       {t("Browse")}
                     </Button>
                   </Box>
@@ -522,13 +547,33 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
 
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'flex-start' }}>
                         <FormControlLabel
-                          control={<Checkbox checked={appSettings.grailRunes} onChange={handleRunes} disabled={isGrailConfigLocked} />}
+                          control={<Checkbox 
+                            checked={appSettings.grailRunes} 
+                            onChange={handleRunes} 
+                            disabled={isGrailConfigLocked}
+                            sx={{
+                              color: '#CC5F43',
+                              '&.Mui-checked': {
+                                color: '#CC5F43',
+                              },
+                            }}
+                          />}
                           label={i18n.t`Include Runes`}
                           sx={{ '& .MuiFormControlLabel-label': { width: '200px' } }}
                         />
                         
                         <FormControlLabel
-                          control={<Checkbox checked={appSettings.grailRunewords} onChange={handleRunewords} disabled={isGrailConfigLocked} />}
+                          control={<Checkbox 
+                            checked={appSettings.grailRunewords} 
+                            onChange={handleRunewords} 
+                            disabled={isGrailConfigLocked}
+                            sx={{
+                              color: '#CC5F43',
+                              '&.Mui-checked': {
+                                color: '#CC5F43',
+                              },
+                            }}
+                          />}
                           label={i18n.t`Include Runewords`}
                           sx={{ '& .MuiFormControlLabel-label': { width: '200px' } }}
                         />
@@ -546,6 +591,12 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                             <Checkbox
                               checked={!!appSettings.persistFoundOnDrop}
                               onChange={handlePersistFound}
+                              sx={{
+                                color: '#CC5F43',
+                                '&.Mui-checked': {
+                                  color: '#CC5F43',
+                                },
+                              }}
                             />
                           }
                           label={t('Keep items marked as found after dropping')}
@@ -597,7 +648,16 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
               
               <Box sx={{ maxWidth: '65%', minWidth: 500, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                 <FormControlLabel
-                  control={<Checkbox checked={appSettings.enableSounds} onChange={handleSound} />}
+                  control={<Checkbox 
+                    checked={appSettings.enableSounds} 
+                    onChange={handleSound}
+                    sx={{
+                      color: '#CC5F43',
+                      '&.Mui-checked': {
+                        color: '#CC5F43',
+                      },
+                    }}
+                  />}
                   label={i18n.t`Play sound when new item is found`}
                   sx={{ mb: 2, alignSelf: 'flex-end' }}
                 />
@@ -633,7 +693,19 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                           valueLabelDisplay="auto"
                           valueLabelFormat={(value) => `${value}%`}
                           size="medium"
-                          sx={{ height: 8 }}
+                          sx={{
+                            height: 8,
+                            color: '#CC5F43',
+                            '& .MuiSlider-thumb': {
+                              backgroundColor: '#CC5F43',
+                            },
+                            '& .MuiSlider-track': {
+                              backgroundColor: '#CC5F43',
+                            },
+                            '& .MuiSlider-rail': {
+                              backgroundColor: '#444',
+                            }
+                          }}
                         />
                       </Box>
                     </Box>
@@ -649,7 +721,16 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                           variant="outlined"
                           onClick={handlePickSoundFile}
                           startIcon={<AudioFileIcon />}
-                          sx={{ flex: 1, py: 1.5 }}
+                          sx={{ 
+                            flex: 1, 
+                            py: 1.5,
+                            borderColor: '#CC5F43',
+                            color: '#CC5F43',
+                            '&:hover': {
+                              borderColor: '#CC5F43',
+                              backgroundColor: 'rgba(204, 95, 67, 0.08)',
+                            }
+                          }}
                           size="medium"
                         >
                           {appSettings.customSoundFile ? t('Change Sound File') : t('Select Sound File')}
@@ -658,9 +739,16 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                         {appSettings.customSoundFile && (
                           <Button
                             variant="outlined"
-                            color="secondary"
                             onClick={handleClearCustomSound}
-                            sx={{ py: 1.5 }}
+                            sx={{ 
+                              py: 1.5,
+                              borderColor: '#CC5F43',
+                              color: '#CC5F43',
+                              '&:hover': {
+                                borderColor: '#CC5F43',
+                                backgroundColor: 'rgba(204, 95, 67, 0.08)',
+                              }
+                            }}
                             size="medium"
                           >
                             {t('Use Default')}
@@ -679,8 +767,15 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                         variant="contained"
                         onClick={handleTestSound}
                         startIcon={<PlayArrowIcon />}
-                        color="primary"
-                        sx={{ py: 1.5, px: 3 }}
+                        sx={{ 
+                          py: 1.5, 
+                          px: 3,
+                          backgroundColor: '#CC5F43',
+                          color: 'white',
+                          '&:hover': {
+                            backgroundColor: '#B54A38',
+                          }
+                        }}
                         size="medium"
                       >
                         {t('Test Sound')}
@@ -736,6 +831,12 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                     <Checkbox
                       checked={!!appSettings.showOverlay}
                       onChange={handleOverlayToggle}
+                      sx={{
+                        color: '#CC5F43',
+                        '&.Mui-checked': {
+                          color: '#CC5F43',
+                        },
+                      }}
                     />
                   }
                   label={t('Show overlay')}
@@ -775,7 +876,19 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                           valueLabelDisplay="auto"
                           valueLabelFormat={(value) => `${value}%`}
                           size="medium"
-                          sx={{ height: 8 }}
+                          sx={{
+                            height: 8,
+                            color: '#CC5F43',
+                            '& .MuiSlider-thumb': {
+                              backgroundColor: '#CC5F43',
+                            },
+                            '& .MuiSlider-track': {
+                              backgroundColor: '#CC5F43',
+                            },
+                            '& .MuiSlider-rail': {
+                              backgroundColor: '#444',
+                            }
+                          }}
                         />
                       </Box>
                     </Box>
@@ -787,6 +900,12 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                           <Checkbox
                             checked={!!appSettings.overlayShowRecentFinds}
                             onChange={handleOverlayRecentFindsToggle}
+                            sx={{
+                              color: '#CC5F43',
+                              '&.Mui-checked': {
+                                color: '#CC5F43',
+                              },
+                            }}
                           />
                         }
                         label={t('Show Recent Finds')}
@@ -813,12 +932,46 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                                 { value: 10, label: '10' },
                               ]}
                               sx={{
-                                color: '#90caf9',
+                                color: '#CC5F43',
                                 '& .MuiSlider-thumb': {
-                                  backgroundColor: '#90caf9',
+                                  backgroundColor: '#CC5F43',
                                 },
                                 '& .MuiSlider-track': {
-                                  backgroundColor: '#90caf9',
+                                  backgroundColor: '#CC5F43',
+                                },
+                                '& .MuiSlider-rail': {
+                                  backgroundColor: '#444',
+                                }
+                              }}
+                            />
+                          </Box>
+
+                          <Typography variant="subtitle2" gutterBottom sx={{ fontSize: '0.9rem', mb: 2, mt: 3 }}>
+                            {t('Font Size')}: {appSettings.overlayRecentFindsFontSize || 14}px
+                          </Typography>
+                          <Box sx={{ width: '100%' }}>
+                            <Slider
+                              value={appSettings.overlayRecentFindsFontSize || 14}
+                              onChange={handleOverlayRecentFindsFontSizeChange}
+                              min={10}
+                              max={24}
+                              step={1}
+                              marks={[
+                                { value: 10, label: '10' },
+                                { value: 12, label: '12' },
+                                { value: 14, label: '14' },
+                                { value: 16, label: '16' },
+                                { value: 18, label: '18' },
+                                { value: 20, label: '20' },
+                                { value: 24, label: '24' },
+                              ]}
+                              sx={{
+                                color: '#CC5F43',
+                                '& .MuiSlider-thumb': {
+                                  backgroundColor: '#CC5F43',
+                                },
+                                '& .MuiSlider-track': {
+                                  backgroundColor: '#CC5F43',
                                 },
                                 '& .MuiSlider-rail': {
                                   backgroundColor: '#444',
@@ -830,11 +983,17 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                           {/* Clear Recent Finds Button */}
                           <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
                             <Button
-                              variant="outlined"
-                              color="secondary"
+                              variant="contained"
                               startIcon={<ClearAllIcon />}
                               onClick={handleClearRecentFinds}
                               size="small"
+                              sx={{
+                                backgroundColor: 'white',
+                                color: 'black',
+                                '&:hover': {
+                                  backgroundColor: '#f5f5f5',
+                                }
+                              }}
                             >
                               {t('Clear Recent Finds')}
                             </Button>
@@ -885,6 +1044,12 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                     <Checkbox
                       checked={!!appSettings.webSyncEnabled}
                       onChange={handleWebSyncToggle}
+                      sx={{
+                        color: '#CC5F43',
+                        '&.Mui-checked': {
+                          color: '#CC5F43',
+                        },
+                      }}
                     />
                   }
                   label={t('Enable Web Sync')}
@@ -949,8 +1114,19 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                         variant="contained"
                         onClick={handleTestSync}
                         startIcon={testingConnection ? <CircularProgress size={16} color="inherit" /> : <LinkIcon />}
-                        color="primary"
-                        sx={{ py: 1.5, px: 3 }}
+                        sx={{ 
+                          py: 1.5, 
+                          px: 3,
+                          backgroundColor: '#CC5F43',
+                          color: 'white',
+                          '&:hover': {
+                            backgroundColor: '#B54A38',
+                          },
+                          '&:disabled': {
+                            backgroundColor: 'rgba(204, 95, 67, 0.3)',
+                            color: 'rgba(255, 255, 255, 0.5)',
+                          }
+                        }}
                         size="medium"
                         disabled={!appSettings.webSyncApiKey || !appSettings.webSyncUrl || testingConnection}
                       >
@@ -961,8 +1137,19 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                         variant="contained"
                         onClick={handleForceSync}
                         startIcon={syncing ? <CircularProgress size={16} color="inherit" /> : <SyncIcon />}
-                        color="secondary"
-                        sx={{ py: 1.5, px: 3 }}
+                        sx={{ 
+                          py: 1.5, 
+                          px: 3,
+                          backgroundColor: 'white',
+                          color: 'black',
+                          '&:hover': {
+                            backgroundColor: '#f5f5f5',
+                          },
+                          '&:disabled': {
+                            backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                            color: 'rgba(0, 0, 0, 0.3)',
+                          }
+                        }}
                         size="medium"
                         disabled={!appSettings.webSyncApiKey || !appSettings.webSyncUrl || syncing || testingConnection}
                       >
@@ -974,7 +1161,16 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                           variant="outlined"
                           onClick={() => window.Main.openUrl(appSettings.webSyncUrl)}
                           startIcon={<LinkIcon />}
-                          sx={{ py: 1.5, px: 3 }}
+                          sx={{ 
+                            py: 1.5, 
+                            px: 3,
+                            borderColor: '#CC5F43',
+                            color: '#CC5F43',
+                            '&:hover': {
+                              borderColor: '#CC5F43',
+                              backgroundColor: 'rgba(204, 95, 67, 0.08)',
+                            }
+                          }}
                           size="medium"
                         >
                           {t('Open Web Tracker')}
@@ -1106,7 +1302,7 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                 <Typography paragraph>
                   <a 
                     onClick={() => { window.Main.openUrl("http://localhost:" + streamPort + "/") }}
-                    style={{ cursor: 'pointer', color: '#90caf9' }}
+                    style={{ cursor: 'pointer', color: '#CC5F43' }}
                   >
                     http://localhost:{streamPort}/
                   </a>
@@ -1134,7 +1330,14 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
               <Button
                 variant="text"
                 onClick={() => window.Main.openUrl("https://github.com/pyrosplat/TheHolyGrail")}
-                sx={{ textDecoration: 'underline' }}
+                sx={{ 
+                  textDecoration: 'underline',
+                  color: '#CC5F43',
+                  '&:hover': {
+                    color: '#CC5F43',
+                    backgroundColor: 'rgba(204, 95, 67, 0.08)',
+                  }
+                }}
                 startIcon={<LinkIcon />}
               >
                 {t('Report an Issue on GitHub')}

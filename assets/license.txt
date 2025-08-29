@@ -1,5 +1,10 @@
 CHANGELOG:
 
+v.2.8.1 (Theme Changes)
+ - Fixed colors to match overall theme
+ - Fixed ethereal showing multiple different ways in the recent items
+ - Added font slider for overlay
+
 v.2.8.0 (Features)
  - Bugfix mapped item display names to recently found overlay 
  - Bugfix Increase recent items font size

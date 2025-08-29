@@ -193,6 +193,21 @@ export function List({ fileReaderResponse, appSettings, itemNotes, playSound }: 
             onChange={(_, value) => { setTab(value); }}
             variant="scrollable"
             scrollButtons="auto"
+            sx={{
+              '& .MuiTabs-indicator': {
+                backgroundColor: '#CC5F43',
+              },
+              '& .MuiTab-root': {
+                color: 'rgba(255, 255, 255, 0.7)',
+                '&.Mui-selected': {
+                  color: '#CC5F43',
+                },
+                '&:hover': {
+                  color: '#CC5F43',
+                  opacity: 0.8,
+                },
+              },
+            }}
           >
             <Tab label={t("Statistics")} />
             <Tab label={t("Unique armor")} />
@@ -211,7 +226,22 @@ export function List({ fileReaderResponse, appSettings, itemNotes, playSound }: 
       {tab != TabState.Statistics && <MissingOnlySwitch>
         <FormControlLabel
           style={{ opacity: 0.7, paddingTop: 10 }}
-          control={<Switch size='small' onChange={handleOnlyMissing} checked={appSettings.onlyMissing} />}
+          control={<Switch 
+            size='small' 
+            onChange={handleOnlyMissing} 
+            checked={appSettings.onlyMissing}
+            sx={{
+              '& .MuiSwitch-switchBase.Mui-checked': {
+                color: '#CC5F43',
+                '&:hover': {
+                  backgroundColor: 'rgba(204, 95, 67, 0.08)',
+                },
+              },
+              '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                backgroundColor: '#CC5F43',
+              },
+            }}
+          />}
           label={<small><Trans>Only missing items</Trans></small>}
         />
       </MissingOnlySwitch>}
