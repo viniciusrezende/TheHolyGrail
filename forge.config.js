@@ -5,6 +5,10 @@ const path = require('path');
 let WebpackPlugin = require('@electron-forge/plugin-webpack');
 if (WebpackPlugin && WebpackPlugin.default) {
   WebpackPlugin = WebpackPlugin.default;            // default export style
+  WebpackPlugin.mainConfig = path.resolve(__dirname, './webpack.main.config.js');
+  WebpackPlugin.renderer = {
+    config: path.resolve(__dirname, './webpack.renderer.config.js'),
+  };
 } else if (WebpackPlugin && WebpackPlugin.WebpackPlugin) {
   WebpackPlugin = WebpackPlugin.WebpackPlugin;      // named export style
 }
