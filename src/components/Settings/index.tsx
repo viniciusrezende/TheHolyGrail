@@ -1004,6 +1004,7 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                     <Checkbox
                       checked={!!appSettings.webSyncEnabled}
                       onChange={handleWebSyncToggle}
+                      disabled
                       sx={{
                         color: '#CC5F43',
                         '&.Mui-checked': {
@@ -1015,6 +1016,12 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                   label={t('Enable Web Sync')}
                   sx={{ mb: 2, alignSelf: 'flex-end' }}
                 />
+
+                {appSettings.grailWarlock && (
+                  <Typography variant="caption" color="text.secondary" sx={{ mb: 2, alignSelf: 'flex-end', maxWidth: 420, textAlign: 'right' }}>
+                    {t('Web Sync is currently disabled in this build.')}
+                  </Typography>
+                )}
 
                 {!isGrailConfigLocked && appSettings.webSyncEnabled && (
                   <Alert severity="warning" sx={{ mb: 2, maxWidth: 500 }}>
