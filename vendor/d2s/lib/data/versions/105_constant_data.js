@@ -12773,8 +12773,8 @@ exports.constants = {
             "c": "usk"
         },
         {
-            "n": "Horazon's Hold",
-            "c": "xlg"
+            "n": "Horazon's Dominion", // overwrote Horazaon's Hold (xlg). All mapping needs to be fixed for RotW
+            "c": "xpl"
         },
         {
             "n": "Horazon's Legacy",

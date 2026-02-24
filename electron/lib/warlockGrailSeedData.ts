@@ -10,4 +10,11 @@
 //     },
 //   },
 // };
-export const warlockGrailSeedData: Record<string, any> = {};
+export const warlockGrailSeedData: Record<string, any> = {
+  sets: {
+    "Horazon's Splendor": {
+      "Horazon's Dominion": {},
+    },
+  },
+};
+

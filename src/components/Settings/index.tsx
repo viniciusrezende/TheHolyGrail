@@ -15,8 +15,8 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import PictureInPictureIcon from '@mui/icons-material/PictureInPicture';
 import { TransitionProps } from '@mui/material/transitions';
-import { Trans, useTranslation } from 'react-i18next';
-import { GameMode, GameVersion, GrailType, Settings } from '../../@types/main.d';
+import { useTranslation } from 'react-i18next';
+import { GameMode, GrailType, Settings } from '../../@types/main.d';
 import { Grid, Accordion, AccordionDetails, AccordionSummary, Divider, FormControl, MenuItem, Select, SelectChangeEvent, Checkbox, FormControlLabel, Box, Slider, Alert, TextField, Button, CircularProgress } from '@mui/material';
 import FolderIcon from '@mui/icons-material/Folder';
 import GroupIcon from '@mui/icons-material/Group';
@@ -28,7 +28,6 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import DropCalcSettings from './DropCalcSettings';
 import i18n from '../../i18n';
 import { settingsKeys } from '../../utils/defaultSettings';
-import cc from '../../../assets/cc.svg';
 import { clearPrevUniqItemsFound } from '../../utils/objects';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { testGrailSound } from '../../utils/soundUtils';
@@ -63,7 +62,6 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
     soundSettings: false,
     overlaySettings: false,
     webSync: false,
-    dropCalculator: false,
     streamingTools: false,
   });
   const { t } = useTranslation();
@@ -141,11 +139,6 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
   const handleVerboseSaveFilesSummary = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
     window.Main.saveSetting(settingsKeys.verboseSaveFilesSummary, enabled);
-  };
-
-  const handleGameVersion = (event: SelectChangeEvent<GameVersion>) => {
-    const version = event.target.value as GameVersion;
-    window.Main.saveSetting(settingsKeys.gameVersion, version);
   };
 
   const handleVolumeChange = (event: Event, newValue: number | number[]) => {
@@ -407,6 +400,20 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                   </Box>
                 </ListItem>
                 <Divider />
+                {/* Drop Calculator */}
+                <ListItem>
+                  <ListItemIcon sx={{ minWidth: 56 }}>
+                    <CalculateIcon />
+                  </ListItemIcon>
+                  <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <ListItemText
+                      primary={t('Drop calculator settings')}
+                      sx={{ maxWidth: '60%' }}
+                    />
+                    <DropCalcSettings appSettings={appSettings} />
+                  </Box>
+                </ListItem>
+                <Divider />
                 <ListItem>
                   <ListItemIcon sx={{ minWidth: 56 }}>
                     <InfoIcon />
@@ -530,7 +537,7 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                               },
                             }}
                           />}
-                          label={i18n.t`Include RotW Items`}
+                          label={i18n.t`Include RotW Items (WIP)`}
                           sx={{ '& .MuiFormControlLabel-label': { width: '220px' } }}
                         />
 
@@ -1201,75 +1208,6 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
                   </Box>
                 )}
               </Box>
-            </Box>
-          </ListItem>
-        </List>
-      </AccordionDetails>
-    </Accordion>
-
-    {/* Drop Calculator & Game Settings */}
-    <Accordion 
-      expanded={expandedSections.dropCalculator}
-      onChange={handleAccordionChange('dropCalculator')}
-    >
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <CalculateIcon />
-          {t("Calculator & Game Settings")}
-        </Typography>
-      </AccordionSummary>
-      <AccordionDetails>
-        <List>
-          {/* Drop Calculator */}
-          <ListItem>
-            <ListItemIcon sx={{ minWidth: 56 }}>
-              <CalculateIcon />
-            </ListItemIcon>
-            <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <ListItemText
-                primary={t('Drop calculator settings')}
-                sx={{ maxWidth: '60%' }}
-              />
-              <DropCalcSettings appSettings={appSettings} />
-            </Box>
-          </ListItem>
-          <Divider />
-          
-          {/* Game Version */}
-          <ListItem>
-            <ListItemIcon sx={{ minWidth: 56 }}>
-              <GroupIcon />
-            </ListItemIcon>
-            <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <ListItemText
-                primary={t("Game version")}
-                sx={{ maxWidth: '60%' }}
-              />
-              <FormControl sx={{ minWidth: 200 }}>
-                <Select
-                  value={appSettings.gameVersion}
-                  onChange={handleGameVersion}
-                  size="small"
-                >
-                  <MenuItem value={GameVersion.Resurrected}>{t("Diablo 2 Resurrected")}</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-          </ListItem>
-          <Divider />
-          
-          {/* Attribution */}
-          <ListItem>
-            <Box sx={{ width: '100%', textAlign: 'center', opacity: 0.5, py: 2 }}>
-              <a href="http://creativecommons.org/licenses/by/4.0/" style={{ color: '#eee' }}>
-                <img src={cc} alt="" style={{ width: 20, verticalAlign: "bottom" }} />
-              </a>
-              &nbsp;
-              <Trans>Sounds from</Trans>
-              &nbsp;
-              <a href="https://freesound.org/people/InspectorJ/" style={{ color: '#eee' }}>
-                InspectorJ
-              </a>
             </Box>
           </ListItem>
         </List>

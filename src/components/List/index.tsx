@@ -126,6 +126,7 @@ export function List({ fileReaderResponse, appSettings, itemNotes, playSound }: 
   const holyGrailSeedData = useMemo(
     () => getHolyGrailSeedData(appSettings, false),
     [
+      appSettings.grailWarlock,
       appSettings.grailRunes,
       appSettings.grailRunewords,
       appSettings.grailType,
@@ -133,7 +134,10 @@ export function List({ fileReaderResponse, appSettings, itemNotes, playSound }: 
   );
   const ethGrailSeedData = useMemo(
     () => getHolyGrailSeedData(appSettings, true),
-    []
+    [
+      appSettings.grailWarlock,
+      appSettings.grailType,
+    ]
   );
   const runesData = holyGrailSeedData.runes || runesSeed;
   const runewordsData = holyGrailSeedData.runewords || runewordsSeed;
