@@ -104,6 +104,7 @@ export const computeSubStats = (
   settings: Settings,
   cacheKey: keyof FlatItemsCache | null,
 ): StatsColl => {
+  const templateRecord = template as Record<string, any> | null;
   const normalFlat = template ? flattenObject(template, cacheKey) : {};
   /* @ts-ignore */
   const ethFlat = ethTemplate ? flattenObject(ethTemplate, 'eth' + cacheKey) : {};
@@ -124,6 +125,9 @@ export const computeSubStats = (
   Object.keys(flat).forEach(itemId => {
     const item = items[itemId];
     const ethItem = ethItems[itemId];
+    const runewordName = typeof templateRecord?.[itemId] === 'string'
+      ? templateRecord[itemId]
+      : runewordsSeed[itemId];
     if (!item && !ethItem) {
       return;
     }
@@ -138,10 +142,10 @@ export const computeSubStats = (
     // runewords
     if (
       item &&
-      runewordsSeed[itemId] &&
+      !!runewordName &&
       settings.grailRunewords &&
       !runewordsFound[itemId] &&
-      !(settings.gameVersion == GameVersion.Classic && runewordsMapping[runewordsSeed[itemId]].patch === 2.4)
+      !(settings.gameVersion == GameVersion.Classic && runewordsMapping[runewordName]?.patch === 2.4)
     ) {
       runewordsCount++;
       runewordsFound[item.name] = true;

@@ -1,5 +1,6 @@
 import { holyGrailSeedData as original } from 'd2-holy-grail/client/src/common/seeds/HolyGrailSeedData';
 import { ethGrailSeedData } from 'd2-holy-grail/client/src/common/seeds/EthGrailSeedData';
+import { runewordGrailSeedData as coreRunewordGrailSeedData } from 'd2-holy-grail/client/src/common/seeds/RunewordGrailSeedData';
 import { GrailType, HolyGrailSeed, RuneType, Settings } from '../../src/@types/main';
 import { simplifyItemName } from '../../src/utils/objects';
 import { runesMapping } from './runesMapping';
@@ -7,6 +8,7 @@ import { runewordsMapping } from './runewordsMapping';
 import { IEthGrailData } from 'd2-holy-grail/client/src/common/definitions/union/IEthGrailData';
 import { warlockEthGrailSeedData } from './warlockEthGrailSeedData';
 import { warlockGrailSeedData } from './warlockGrailSeedData';
+import { warlockRunewordGrailSeedData } from './warlockRunewordGrailSeedData';
 
 export let runesSeed: Record<string, string> = {};
 Object.keys(runesMapping).forEach((runeId: string) => {
@@ -17,6 +19,17 @@ export const runewordsSeed: {[runewordId: string]: string} = {};
 Object.keys(runewordsMapping).forEach(runewordName => {
   runewordsSeed['runeword' + simplifyItemName(runewordName)] = runewordName;
 })
+
+const buildRunewordsSeed = (runewordNames: string[]): Record<string, string> => (
+  runewordNames.reduce((acc, runewordName) => {
+    acc['runeword' + simplifyItemName(runewordName)] = runewordName;
+    return acc;
+  }, {} as Record<string, string>)
+);
+
+const coreRunewordsSeed = buildRunewordsSeed(Object.keys(coreRunewordGrailSeedData));
+const warlockRunewordsSeed = buildRunewordsSeed(Object.keys(warlockRunewordGrailSeedData));
+const warlockEnabledRunewordsSeed = { ...coreRunewordsSeed, ...warlockRunewordsSeed };
 
 const isPlainObject = (value: unknown): value is Record<string, any> => (
   !!value && typeof value === 'object' && !Array.isArray(value)
@@ -81,7 +94,9 @@ export function getHolyGrailSeedData(settings: Settings | null, ethereal: boolea
     holyGrailSeedData['runes'] = runesSeed;
   }
   if (settings && settings.grailRunewords) {
-    holyGrailSeedData['runewords'] = runewordsSeed;
+    holyGrailSeedData['runewords'] = settings.grailWarlock
+      ? warlockEnabledRunewordsSeed
+      : coreRunewordsSeed;
   }
   return holyGrailSeedData;
 }

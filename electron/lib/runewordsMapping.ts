@@ -923,6 +923,32 @@ export const runewordsMapping: RunewordsMapping = {
         "patch": 1.1,
         "wiki": "https://d2runewizard.com/runewords/Chaos"
     },
+    "Coven": {
+        "level": 51,
+        "name": "Coven",
+        "runes": [
+            "ist",
+            "ral",
+            "io"
+        ],
+        "bases": [
+            "helm"
+        ],
+        "attributes": [
+            "5% Chance to cast level 10 Sigil: Lethargy when struck",
+            "+1 to All Skills",
+            "+20% Faster Cast Rate",
+            "30-50% Enhanced Defense",
+            "+10 to Vitality",
+            "Fire Resist +30%",
+            "1-5 Life after each Kill",
+            "26-40% Better Chance of Getting Magic Items"
+        ],
+        "ladder": true,
+        "tier": 3,
+        "patch": 1.1,
+        "wiki": "https://d2runewizard.com/runewords/Coven"
+    },
     "Crescent Moon": {
         "level": 47,
         "name": "Crescent Moon",
@@ -2734,6 +2760,7 @@ export const quickRunewordMap: {[runes: string]: string} = {
     "vex,hel,el,eld,zod,eth":"Breath of the Dying",
     "amn,ral,mal,ist,ohm":"Call to Arms",
     "fal,ohm,um":"Chaos",
+    "ist,ral,io":"Coven",
     "shael,um,tir":"Crescent Moon",
     "hel,el,vex,ort,gul":"Death",
     "vex,lo,ber,jah,ko":"Destruction",
