@@ -42,10 +42,11 @@ type ListProps = {
   fileReaderResponse: FileReaderResponse | null,
   appSettings: Settings,
   itemNotes: ItemNotes,
+  saveSetting?: <K extends keyof Settings>(setting: K, value: Settings[K]) => void,
   playSound?: () => void,
 }
 
-export function List({ fileReaderResponse, appSettings, itemNotes, playSound }: ListProps) {
+export function List({ fileReaderResponse, appSettings, itemNotes, saveSetting, playSound }: ListProps) {
   const [tab, setTab] = useState(TabState.Statistics);
   const [search, setSearch] = useState<string>('');
   const [historyVersion, setHistoryVersion] = useState(0); // bump when everFound is cleared
@@ -149,6 +150,8 @@ export function List({ fileReaderResponse, appSettings, itemNotes, playSound }: 
       itemsForStats,
       ethItemsForStats,
       holyGrailSeedData,
+      ethGrailSeedData,
+      appSettings.grailWarlock,
       appSettings.grailType,
       appSettings.grailRunes,
       appSettings.grailRunewords,
@@ -178,7 +181,7 @@ export function List({ fileReaderResponse, appSettings, itemNotes, playSound }: 
             itemNotes={itemNotes}
           />
           <Language />
-          <SettingsPanel appSettings={appSettings} />
+          <SettingsPanel appSettings={appSettings} onSaveSetting={saveSetting} />
         </ButtonPanel>
         <Logo>
           <Image

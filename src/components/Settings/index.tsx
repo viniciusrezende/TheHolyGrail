@@ -47,9 +47,10 @@ const Transition = forwardRef(function Transition(
 
 type SettingsPanelProps = {
   appSettings: Settings,
+  onSaveSetting?: <K extends keyof Settings>(setting: K, value: Settings[K]) => void,
 }
 
-export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
+export default function SettingsPanel({ appSettings, onSaveSetting }: SettingsPanelProps) {
   const [open, setOpen] = useState(false);
   const [iframeVisible, setIframeVisible] = useState(false);
   const [streamPort, setStreamPort] = useState(0);
@@ -89,6 +90,14 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
     setOpen(false);
   };
 
+  const saveSetting = <K extends keyof Settings>(setting: K, value: Settings[K]) => {
+    if (onSaveSetting) {
+      onSaveSetting(setting, value);
+      return;
+    }
+    window.Main.saveSetting(setting, value);
+  };
+
   const handleOpenFolder = () => {
     window.Main.openFolder();
   };
@@ -108,22 +117,22 @@ export default function SettingsPanel({ appSettings }: SettingsPanelProps) {
   const handleRunes = (event: React.ChangeEvent<HTMLInputElement>) => {
     const runes = event.target.checked;
     clearPrevUniqItemsFound();
-    window.Main.saveSetting(settingsKeys.grailRunes, runes);
+    saveSetting(settingsKeys.grailRunes, runes);
   };
 
   const handleGrailWarlock = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
     clearPrevUniqItemsFound();
     if (enabled && appSettings.webSyncEnabled) {
-      window.Main.saveSetting(settingsKeys.webSyncEnabled, false);
+      saveSetting(settingsKeys.webSyncEnabled, false);
     }
-    window.Main.saveSetting(settingsKeys.grailWarlock, enabled);
+    saveSetting(settingsKeys.grailWarlock, enabled);
   };
 
   const handleRunewords = (event: React.ChangeEvent<HTMLInputElement>) => {
     const runewords = event.target.checked;
     clearPrevUniqItemsFound();
-    window.Main.saveSetting(settingsKeys.grailRunewords, runewords);
+    saveSetting(settingsKeys.grailRunewords, runewords);
   };
 
   const handleSound = (event: React.ChangeEvent<HTMLInputElement>) => {

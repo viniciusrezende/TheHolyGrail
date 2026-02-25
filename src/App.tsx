@@ -28,6 +28,7 @@ export function App() {
   const [fileReaderResponse, setFileReaderResponse] = useState<FileReaderResponse | null>(null);
   const [uiState, setUiState] = useState(UiState.Loading);
   const [itemNotes, setItemNotes] = useState({});
+  const [, setSettingsVersion] = useState(0);
   const appSettings = useRef(defaultSettings);
   const { t } = useTranslation();
 
@@ -91,11 +92,13 @@ export function App() {
     }
 
     appSettings.current = settings;
+    setSettingsVersion((version) => version + 1);
   }
 
   const saveSetting = <K extends keyof Settings>(setting: K, value: Settings[K]) => {
     window.Main.saveSetting(setting, value);
     appSettings.current[setting] = value;
+    setSettingsVersion((version) => version + 1);
   }
 
   const readData = (settings: Settings) => {
@@ -215,6 +218,7 @@ export function App() {
               fileReaderResponse={fileReaderResponse}
               appSettings={appSettings.current}
               itemNotes={itemNotes}
+              saveSetting={saveSetting}
               playSound={playGrailSound}  // Pass the sound function
             />
           }
