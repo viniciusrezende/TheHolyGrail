@@ -279,6 +279,10 @@ export async function readItem(
         item.current_durability = reader.ReadUInt16(constants.magical_properties[72].sB) - constants.magical_properties[72].sA;
       }
     }
+    // D2R v105 adds a tail bit in this section before stackable quantity.
+    if (version === 105) {
+      reader.SkipBits(1);
+    }
 
     if (constants.stackables[item.type]) {
       item.quantity = reader.ReadUInt16(9);
@@ -322,6 +326,15 @@ export async function readItem(
         item.runeword_attributes = magic_attributes;
       }
     }
+  }
+  // D2R v105 sometimes appends an extra byte after the final property list marker.
+  if (version === 105 && reader.ReadBit()) {
+    reader.SkipBits(8);
+  }
+  if (version === 105 && item._unknown_data?.b27_31?.[1]) {
+    // In-session post-ID metadata (observed 48/56-bit variants) disappears after leaving game.
+    const padBits = (8 - (reader.offset & 7)) & 7;
+    reader.SkipBits(padBits <= 3 ? 56 : 48);
   }
   reader.Align();
 
