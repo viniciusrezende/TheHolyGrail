@@ -1057,6 +1057,37 @@ export declare let constants: {
             s: string;
             f: number;
         }[];
+        war: {
+            s: string;
+            f: number;
+        }[];
+        "dmg-mag/lvl": {
+            s: string;
+            f: number;
+        }[];
+        "pierce-mag": {
+            s: string;
+            f: number;
+        }[];
+        "pierce-dmg": {
+            s: string;
+            f: number;
+        }[];
+        "affix-rand": {
+            f: number;
+        }[];
+        "extra-skill-dmg%-rand": {
+            s: string;
+            f: number;
+        }[];
+        "war-tab-rand": {
+            s: string;
+            f: number;
+        }[];
+        "extra-mag": {
+            s: string;
+            f: number;
+        }[];
     };
     magical_properties: ({
         s: string;
@@ -1294,32 +1325,6 @@ export declare let constants: {
         ob?: undefined;
     } | {
         s: string;
-        sS: number;
-        sB: number;
-        sA: number;
-        cB?: undefined;
-        cS?: undefined;
-        so?: undefined;
-        dF?: undefined;
-        dP?: undefined;
-        dN?: undefined;
-        dg?: undefined;
-        dgF?: undefined;
-        dgP?: undefined;
-        o?: undefined;
-        os?: undefined;
-        vS?: undefined;
-        np?: undefined;
-        dR?: undefined;
-        dE?: undefined;
-        sP?: undefined;
-        e?: undefined;
-        dV?: undefined;
-        d2?: undefined;
-        op?: undefined;
-        ob?: undefined;
-    } | {
-        s: string;
         sB: number;
         sA: number;
         cB?: undefined;
@@ -1450,6 +1455,32 @@ export declare let constants: {
         ob?: undefined;
     } | {
         s: string;
+        sS: number;
+        sB: number;
+        sA: number;
+        cB?: undefined;
+        cS?: undefined;
+        so?: undefined;
+        dF?: undefined;
+        dP?: undefined;
+        dN?: undefined;
+        dg?: undefined;
+        dgF?: undefined;
+        dgP?: undefined;
+        o?: undefined;
+        os?: undefined;
+        vS?: undefined;
+        np?: undefined;
+        dR?: undefined;
+        dE?: undefined;
+        sP?: undefined;
+        e?: undefined;
+        dV?: undefined;
+        d2?: undefined;
+        op?: undefined;
+        ob?: undefined;
+    } | {
+        s: string;
         sB: number;
         sA: number;
         so: number;
@@ -1756,32 +1787,6 @@ export declare let constants: {
         dE?: undefined;
         sP?: undefined;
         e?: undefined;
-        dV?: undefined;
-        d2?: undefined;
-        op?: undefined;
-        ob?: undefined;
-    } | {
-        s: string;
-        e: number;
-        sS: number;
-        cB?: undefined;
-        cS?: undefined;
-        sB?: undefined;
-        sA?: undefined;
-        so?: undefined;
-        dF?: undefined;
-        dP?: undefined;
-        dN?: undefined;
-        dg?: undefined;
-        dgF?: undefined;
-        dgP?: undefined;
-        o?: undefined;
-        os?: undefined;
-        vS?: undefined;
-        np?: undefined;
-        dR?: undefined;
-        dE?: undefined;
-        sP?: undefined;
         dV?: undefined;
         d2?: undefined;
         op?: undefined;
@@ -1916,6 +1921,32 @@ export declare let constants: {
         d2?: undefined;
         op?: undefined;
         ob?: undefined;
+    } | {
+        s: string;
+        e: number;
+        sS: number;
+        cB?: undefined;
+        cS?: undefined;
+        sB?: undefined;
+        sA?: undefined;
+        so?: undefined;
+        dF?: undefined;
+        dP?: undefined;
+        dN?: undefined;
+        dg?: undefined;
+        dgF?: undefined;
+        dgP?: undefined;
+        o?: undefined;
+        os?: undefined;
+        vS?: undefined;
+        np?: undefined;
+        dR?: undefined;
+        dE?: undefined;
+        sP?: undefined;
+        dV?: undefined;
+        d2?: undefined;
+        op?: undefined;
+        ob?: undefined;
     } | null)[];
     runewords: ({
         n: string;
@@ -1924,8 +1955,15 @@ export declare let constants: {
         n: string;
         c: string;
         tc: string;
+        i?: undefined;
     } | {
         n: string;
+        c: string;
+        tc?: undefined;
+        i?: undefined;
+    } | {
+        n: string;
+        i: string;
         c: string;
         tc?: undefined;
     })[];
@@ -1933,23 +1971,43 @@ export declare let constants: {
         n: string;
         i: string;
         c: string;
-        tc: string;
-    } | {
-        n: string;
-        c: string;
-        tc: string;
-        i?: undefined;
-    } | {
-        n: string;
-        c: string;
-        i?: undefined;
         tc?: undefined;
+    } | {
+        n: string;
+        c: string;
+        tc: string;
+        i?: undefined;
     } | {
         n: string;
         i: string;
         c: string;
+        tc: string;
+    } | {
+        n: string;
+        c: string;
+        i?: undefined;
         tc?: undefined;
-    } | null)[];
+    } | {
+        n: string;
+        i?: undefined;
+        c?: undefined;
+        tc?: undefined;
+    } | {
+        n?: undefined;
+        i?: undefined;
+        c?: undefined;
+        tc?: undefined;
+    } | {
+        n: string;
+        tc: string;
+        i?: undefined;
+        c?: undefined;
+    } | {
+        n: string;
+        i: string;
+        c?: undefined;
+        tc?: undefined;
+    })[];
     stackables: {
         tkf: {
             n: string;
@@ -15888,7 +15946,6 @@ export declare let constants: {
             ih: number;
             it: number;
             ig: never[];
-            eq1n: string;
             c: string[];
         };
         xa2: {
@@ -15901,7 +15958,6 @@ export declare let constants: {
             ih: number;
             it: number;
             ig: never[];
-            eq1n: string;
             c: string[];
         };
         xa3: {
@@ -15914,7 +15970,6 @@ export declare let constants: {
             ih: number;
             it: number;
             ig: never[];
-            eq1n: string;
             c: string[];
         };
         xa4: {
@@ -15927,7 +15982,6 @@ export declare let constants: {
             ih: number;
             it: number;
             ig: never[];
-            eq1n: string;
             c: string[];
         };
         xa5: {
@@ -15940,7 +15994,6 @@ export declare let constants: {
             ih: number;
             it: number;
             ig: never[];
-            eq1n: string;
             c: string[];
         };
         ua1: {
@@ -15953,7 +16006,6 @@ export declare let constants: {
             ih: number;
             it: number;
             ig: never[];
-            eq1n: string;
             c: string[];
         };
         ua2: {
@@ -15966,7 +16018,6 @@ export declare let constants: {
             ih: number;
             it: number;
             ig: never[];
-            eq1n: string;
             c: string[];
         };
         ua3: {
@@ -15979,7 +16030,6 @@ export declare let constants: {
             ih: number;
             it: number;
             ig: never[];
-            eq1n: string;
             c: string[];
         };
         ua4: {
@@ -15992,7 +16042,6 @@ export declare let constants: {
             ih: number;
             it: number;
             ig: never[];
-            eq1n: string;
             c: string[];
         };
         ua5: {
@@ -16005,7 +16054,6 @@ export declare let constants: {
             ih: number;
             it: number;
             ig: never[];
-            eq1n: string;
             c: string[];
         };
         um1: {
@@ -16018,7 +16066,6 @@ export declare let constants: {
             ih: number;
             it: number;
             ig: never[];
-            eq1n: string;
             c: string[];
         };
         um2: {
@@ -16031,7 +16078,6 @@ export declare let constants: {
             ih: number;
             it: number;
             ig: never[];
-            eq1n: string;
             c: string[];
         };
         um3: {
@@ -16044,7 +16090,6 @@ export declare let constants: {
             ih: number;
             it: number;
             ig: never[];
-            eq1n: string;
             c: string[];
         };
         um4: {
@@ -16057,7 +16102,6 @@ export declare let constants: {
             ih: number;
             it: number;
             ig: never[];
-            eq1n: string;
             c: string[];
         };
         um5: {
@@ -16070,7 +16114,6 @@ export declare let constants: {
             ih: number;
             it: number;
             ig: never[];
-            eq1n: string;
             c: string[];
         };
         um6: {
@@ -16083,6 +16126,31 @@ export declare let constants: {
             ih: number;
             it: number;
             ig: never[];
+            c: string[];
+        };
+        cjw: {
+            iq: number;
+            n: string;
+            hi: number;
+            gt: number;
+            i: string;
+            iw: number;
+            ih: number;
+            it: number;
+            ig: string[];
+            eq1n: string;
+            c: string[];
+        };
+        cs2: {
+            iq: number;
+            n: string;
+            hi: number;
+            gt: number;
+            i: string;
+            iw: number;
+            ih: number;
+            it: number;
+            ig: string[];
             eq1n: string;
             c: string[];
         };

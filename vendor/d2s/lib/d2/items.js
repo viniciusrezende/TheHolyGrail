@@ -430,9 +430,6 @@ function readItem(reader, version, originalConstants, config, parent) {
                                 item.current_durability = reader.ReadUInt16(constants.magical_properties[72].sB) - constants.magical_properties[72].sA;
                             }
                         }
-                        if (version === 105) {
-                            reader.SkipBits(1);
-                        }
                         if (constants.stackables[item.type]) {
                             item.quantity = reader.ReadUInt16(9);
                         }
@@ -467,16 +464,6 @@ function readItem(reader, version, originalConstants, config, parent) {
                             }
                         }
                     }
-                    if (version === 105 && reader.ReadBit()) {
-                        reader.SkipBits(8);
-                    }
-                    if (version === 105 && item._unknown_data && item._unknown_data.b27_31 && item._unknown_data.b27_31[1]) {
-                        // RotW appends in-session (not present after leaving game) metadata (chronicle/grail-related???)
-                        // after the usual tail bit and before the final item alignment.
-                        // Observed samples use either 48 bits or 56 bits, depending on the remaining pad bits.
-                        var padBits = (8 - (reader.offset & 7)) & 7;
-                        reader.SkipBits(padBits <= 3 ? 56 : 48);
-                    }
                     reader.Align();
                     if (!(item.nr_of_items_in_sockets > 0 && item.simple_item === 0)) return [3 /*break*/, 4];
                     item.socketed_items = [];
@@ -492,7 +479,9 @@ function readItem(reader, version, originalConstants, config, parent) {
                 case 3:
                     i++;
                     return [3 /*break*/, 1];
-                case 4: return [2 /*return*/, item];
+                case 4: 
+                //console.log(JSON.stringify(item));
+                return [2 /*return*/, item];
             }
         });
     });
@@ -643,7 +632,7 @@ function writeItem(item, version, constants, config) {
 }
 exports.writeItem = writeItem;
 function _readSimpleBits(item, reader, version, constants, config) {
-    var _a, _b, _c;
+    var _a;
     //init so we do not have npe's
     item._unknown_data = {};
     //1.10-1.14d
@@ -714,10 +703,10 @@ function _readSimpleBits(item, reader, version, constants, config) {
         item.type = item.type.trim().replace(/\0/g, "");
         var details = _GetItemTXT(item, constants);
         item.categories = details === null || details === void 0 ? void 0 : details.c;
-        if ((_a = item === null || item === void 0 ? void 0 : item.categories) === null || _a === void 0 ? void 0 : _a.includes("Any Armor")) {
+        if (item === null || item === void 0 ? void 0 : item.categories.includes("Any Armor")) {
             item.type_id = ItemType.Armor;
         }
-        else if ((_b = item === null || item === void 0 ? void 0 : item.categories) === null || _b === void 0 ? void 0 : _b.includes("Weapon")) {
+        else if (item === null || item === void 0 ? void 0 : item.categories.includes("Weapon")) {
             item.type_id = ItemType.Weapon;
             details = constants.weapon_items[item.type];
         }
@@ -725,7 +714,7 @@ function _readSimpleBits(item, reader, version, constants, config) {
             item.type_id = ItemType.Other;
         }
         var bits = item.simple_item ? 1 : 3;
-        if ((_c = item.categories) === null || _c === void 0 ? void 0 : _c.includes("Quest")) {
+        if ((_a = item.categories) === null || _a === void 0 ? void 0 : _a.includes("Quest")) {
             item.quest_difficulty = reader.ReadUInt16(constants.magical_properties[356].sB) - constants.magical_properties[356].sA;
             bits = 1;
         }
