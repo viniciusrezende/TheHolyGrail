@@ -88,5 +88,6 @@ var SkillOffset = {
     Barbarian: 126,
     Druid: 221,
     Assassin: 251,
+    Warlock: 373,
 };
 //# sourceMappingURL=skills.js.map

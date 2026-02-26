@@ -12,9 +12,15 @@ function readHeader(char, reader, constants) {
     if (char.header.version > 0x61) {
         reader.SeekByte(267);
     }
+    if (char.header.version > 0x63) {
+        reader.SeekByte(299);
+    }
     char.header.name = reader.ReadString(16).replace(/\0/g, ""); //0x0014
     if (char.header.version > 0x61) {
         reader.SeekByte(36);
+    }
+    if (char.header.version > 0x63) {
+        reader.SeekByte(20);
     }
     char.header.status = _readStatus(reader.ReadUInt8()); //0x0024
     char.header.progression = reader.ReadUInt8(); //0x0025
@@ -39,7 +45,12 @@ function readHeader(char, reader, constants) {
     char.header.merc_name_id = reader.ReadUInt16(); //0x00b7
     char.header.merc_type = reader.ReadUInt16(); //0x00b9
     char.header.merc_experience = reader.ReadUInt32(); //0x00bb
-    reader.SkipBytes(144); //0x00bf [unk]
+    if (char.header.version == 0x69) {
+        reader.SkipBytes(228);
+    }
+    else if (char.header.version > 0x61) {
+        reader.SkipBytes(144);
+    }
     reader.SkipBytes(4); //0x014f [quests header identifier = 0x57, 0x6f, 0x6f, 0x21 "Woo!"]
     reader.SkipBytes(4); //0x0153 [version = 0x6, 0x0, 0x0, 0x0]
     reader.SkipBytes(2); //0x0153 [quests header length = 0x2a, 0x1]

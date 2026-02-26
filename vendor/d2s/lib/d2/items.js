@@ -316,10 +316,11 @@ function writeItems(items, version, constants, config) {
 }
 exports.writeItems = writeItems;
 function readItem(reader, version, originalConstants, config, parent) {
+    var _a, _b;
     return __awaiter(this, void 0, void 0, function () {
-        var header, constants, item, i, prefix, arr, i, plist_flag, magic_attributes, i, _a, _b;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
+        var header, constants, item, i, prefix, arr, i, plist_flag, magic_attributes, padBits, i, _c, _d;
+        return __generator(this, function (_e) {
+            switch (_e.label) {
                 case 0:
                     if (version <= 0x60) {
                         header = reader.ReadString(2);
@@ -430,6 +431,10 @@ function readItem(reader, version, originalConstants, config, parent) {
                                 item.current_durability = reader.ReadUInt16(constants.magical_properties[72].sB) - constants.magical_properties[72].sA;
                             }
                         }
+                        // D2R v105 adds a tail bit in this section before stackable quantity.
+                        if (version === 105) {
+                            reader.SkipBits(1);
+                        }
                         if (constants.stackables[item.type]) {
                             item.quantity = reader.ReadUInt16(9);
                         }
@@ -464,18 +469,26 @@ function readItem(reader, version, originalConstants, config, parent) {
                             }
                         }
                     }
+                    // D2R v105 sometimes appends an extra byte after the final property list marker.
+                    if (version === 105 && reader.ReadBit()) {
+                        reader.SkipBits(8);
+                    }
+                    if (version === 105 && ((_b = (_a = item._unknown_data) === null || _a === void 0 ? void 0 : _a.b27_31) === null || _b === void 0 ? void 0 : _b[1])) {
+                        padBits = (8 - (reader.offset & 7)) & 7;
+                        reader.SkipBits(padBits <= 3 ? 56 : 48);
+                    }
                     reader.Align();
                     if (!(item.nr_of_items_in_sockets > 0 && item.simple_item === 0)) return [3 /*break*/, 4];
                     item.socketed_items = [];
                     i = 0;
-                    _c.label = 1;
+                    _e.label = 1;
                 case 1:
                     if (!(i < item.nr_of_items_in_sockets)) return [3 /*break*/, 4];
-                    _b = (_a = item.socketed_items).push;
+                    _d = (_c = item.socketed_items).push;
                     return [4 /*yield*/, readItem(reader, version, constants, config, item)];
                 case 2:
-                    _b.apply(_a, [_c.sent()]);
-                    _c.label = 3;
+                    _d.apply(_c, [_e.sent()]);
+                    _e.label = 3;
                 case 3:
                     i++;
                     return [3 /*break*/, 1];
