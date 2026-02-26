@@ -470,6 +470,13 @@ function readItem(reader, version, originalConstants, config, parent) {
                     if (version === 105 && reader.ReadBit()) {
                         reader.SkipBits(8);
                     }
+                    if (version === 105 && item._unknown_data && item._unknown_data.b27_31 && item._unknown_data.b27_31[1]) {
+                        // RotW appends in-session (not present after leaving game) metadata (chronicle/grail-related???)
+                        // after the usual tail bit and before the final item alignment.
+                        // Observed samples use either 48 bits or 56 bits, depending on the remaining pad bits.
+                        var padBits = (8 - (reader.offset & 7)) & 7;
+                        reader.SkipBits(padBits <= 3 ? 56 : 48);
+                    }
                     reader.Align();
                     if (!(item.nr_of_items_in_sockets > 0 && item.simple_item === 0)) return [3 /*break*/, 4];
                     item.socketed_items = [];
