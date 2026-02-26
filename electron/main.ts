@@ -620,12 +620,8 @@ app.whenReady()
     setupAudioProtocol();
     await registerListeners();
 
-    // Keep production behavior (clear on launch), but seed sample entries for local dev.
-    if (app.isPackaged) {
-      itemsDatabase.clearRecentFinds();
-    } else {
-      itemsDatabase.seedRecentFindsForDevelopment(5);
-    }
+    // Always start recent finds empty on launch.
+    itemsDatabase.clearRecentFinds();
     
     // Check if grail configuration should be unlocked
     webSyncManager.checkAndUnlockConfiguration();

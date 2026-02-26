@@ -31,6 +31,7 @@ class ItemsStore {
   readingFiles: boolean;
   itemNotes: ItemNotes | null;
   recentFinds: Array<{ name: string; type: string; timestamp: number; ethereal?: boolean }>;
+  recentFindsBaselineReady: boolean;
 
   everFound: Record<string, boolean>;
 
@@ -49,8 +50,13 @@ class ItemsStore {
     this.filesChanged = false;
     this.readingFiles = false;
     this.itemNotes = null;
-    const storedFinds = storage.getSync('recentFinds');
-    this.recentFinds = Array.isArray(storedFinds) ? storedFinds : [];
+    // Start empty on app launch. "Recent finds" should reflect finds from the current session,
+    // not whatever was present on the first save scan or from a prior app run.
+    this.recentFinds = [];
+    this.recentFindsBaselineReady = false;
+    storage.set('recentFinds', this.recentFinds, (error) => {
+      if (error) console.log('Error resetting recent finds on startup:', error);
+    });
     this.everFound = (storage.getSync('everFound') as Record<string, boolean>) || {};
     setInterval(this.tickReader, 500);
     try { d2s.getConstantData(96); } catch (e) { d2s.setConstantData(96, constants96); }
@@ -75,21 +81,6 @@ class ItemsStore {
     this.recentFinds = [];
     storage.set('recentFinds', this.recentFinds, (error) => {
       if (error) console.log('Error clearing recent finds:', error);
-    });
-  };
-
-  seedRecentFindsForDevelopment = (count: number = 5): void => {
-    const now = Date.now();
-    const seed = [
-      { name: "Harlequin Crest" },
-      { name: "Arachnid Mesh" },
-      { name: "Tal Rasha's Guardianship" },
-      { name: "Ber", type: "Rune" },
-      { name: "runewordenigma" },
-    ];
-    this.recentFinds = seed.slice(0, Math.max(0, count));
-    storage.set('recentFinds', this.recentFinds, (error) => {
-      if (error) console.log('Error seeding recent finds:', error);
     });
   };
 
@@ -357,6 +348,13 @@ class ItemsStore {
       setEventToReply(event);
     }
 
+    const switchingWatchedPath = !!path && !!this.watchPath && this.watchPath !== path;
+    if (userRequested || switchingWatchedPath) {
+      // Opening/re-opening a folder should establish a fresh baseline for recent-find detection.
+      this.recentFindsBaselineReady = false;
+      this.clearRecentFinds();
+    }
+
     if (!this.fileWatcher) {
       if (path) {
         this.watchPath = path;
@@ -562,8 +560,11 @@ class ItemsStore {
 
       event.reply('openFolder', results);
 
-      // Check for new items first
-      const hasNewItems = this.checkForNewItems(results);
+      // Treat the first scan after startup/folder-open as a baseline, not a set of new finds.
+      const hasNewItems = this.recentFindsBaselineReady
+        ? this.checkForNewItems(results)
+        : false;
+      this.recentFindsBaselineReady = true;
 
       // NEW: Play sound if enabled and new items were found
       if (playSounds && s.enableSounds && hasNewItems) {
