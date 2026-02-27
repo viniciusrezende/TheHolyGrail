@@ -254,36 +254,59 @@ function writeCorpseItem(char, constants, config) {
     });
 }
 exports.writeCorpseItem = writeCorpseItem;
-async function readItems(reader, version, constants, config, char) {
-    var items = [];
-    var header = reader.ReadString(2);
-    if (header !== "JM") {
-        // header is not present in first save after char is created
-        if ((char === null || char === void 0 ? void 0 : char.header.level) === 1) {
-            return []; // TODO: return starter items based on class
-        }
-        throw new Error("Item list header 'JM' not found at position " + (reader.offset - 2 * 8));
-    }
-    var count = reader.ReadUInt16();
-    for (var i = 0; i < count; i++) {
-        var itemStartOffset = reader.offset;
-        try {
-            items.push(await readItem(reader, version, constants, config));
-        }
-        catch (error) {
-            var message = (error === null || error === void 0 ? void 0 : error.message) || String(error);
-            var canRetryWithOneByteShift = version === 105 &&
-                (message.indexOf('Invalid Stat Id') !== -1 || message.indexOf('Save Bits is undefined') !== -1);
-            if (!canRetryWithOneByteShift) {
-                throw error;
+function readItems(reader, version, constants, config, char) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function () {
+        var items, header, count, i, itemStartOffset, _b, _c, error_1, message, canRetryWithOneByteShift, _d, _e;
+        return __generator(this, function (_f) {
+            switch (_f.label) {
+                case 0:
+                    items = [];
+                    header = reader.ReadString(2);
+                    if (header !== "JM") {
+                        // header is not present in first save after char is created
+                        if ((char === null || char === void 0 ? void 0 : char.header.level) === 1) {
+                            return [2 /*return*/, []]; // TODO: return starter items based on class
+                        }
+                        throw new Error("Item list header 'JM' not found at position " + (reader.offset - 2 * 8));
+                    }
+                    count = reader.ReadUInt16();
+                    i = 0;
+                    _f.label = 1;
+                case 1:
+                    if (!(i < count)) return [3 /*break*/, 7];
+                    itemStartOffset = reader.offset;
+                    _f.label = 2;
+                case 2:
+                    _f.trys.push([2, 4, , 6]);
+                    _c = (_b = items).push;
+                    return [4 /*yield*/, readItem(reader, version, constants, config)];
+                case 3:
+                    _c.apply(_b, [_f.sent()]);
+                    return [3 /*break*/, 6];
+                case 4:
+                    error_1 = _f.sent();
+                    message = ((_a = error_1) === null || _a === void 0 ? void 0 : _a.message) || String(error_1);
+                    canRetryWithOneByteShift = version === 105 &&
+                        (message.includes('Invalid Stat Id') || message.includes('Save Bits is undefined'));
+                    if (!canRetryWithOneByteShift) {
+                        throw error_1;
+                    }
+                    // v105 post-ID metadata occasionally leaves item parsing one byte early.
+                    // Retry this item once from +8 bits and keep strict failure if it still errors.
+                    reader.offset = itemStartOffset + 8;
+                    _e = (_d = items).push;
+                    return [4 /*yield*/, readItem(reader, version, constants, config)];
+                case 5:
+                    _e.apply(_d, [_f.sent()]);
+                    return [3 /*break*/, 6];
+                case 6:
+                    i++;
+                    return [3 /*break*/, 1];
+                case 7: return [2 /*return*/, items];
             }
-            // v105 post-ID metadata occasionally leaves item parsing one byte early.
-            // Retry this item once from +8 bits and keep strict failure if it still errors.
-            reader.offset = itemStartOffset + 8;
-            items.push(await readItem(reader, version, constants, config));
-        }
-    }
-    return items;
+        });
+    });
 }
 exports.readItems = readItems;
 function writeItems(items, version, constants, config) {
@@ -316,7 +339,7 @@ exports.writeItems = writeItems;
 function readItem(reader, version, originalConstants, config, parent) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function () {
-        var header, constants, item, i, prefix, arr, i, plist_flag, magic_attributes, padBits, i, _c, _d;
+        var header, constants, item, i, prefix, arr, i, plist_flag, magic_attributes, hasTransientPostIdBits, padBits, transientBits, probeOffset, i, _c, _d;
         return __generator(this, function (_e) {
             switch (_e.label) {
                 case 0:
@@ -468,20 +491,23 @@ function readItem(reader, version, originalConstants, config, parent) {
                         }
                     }
                     if (version === 105) {
-                        if ((_b = (_a = item._unknown_data) === null || _a === void 0 ? void 0 : _a.b27_31) === null || _b === void 0 ? void 0 : _b[1]) {
+                        hasTransientPostIdBits = !!((_b = (_a = item._unknown_data) === null || _a === void 0 ? void 0 : _a.b27_31) === null || _b === void 0 ? void 0 : _b[1]);
+                        if (hasTransientPostIdBits) {
                             padBits = (8 - (reader.offset & 7)) & 7;
-                            reader.SkipBits(padBits <= 3 ? 56 : 48);
-                            if (padBits > 3) {
-                                i = reader.offset;
+                            transientBits = padBits <= 3 ? 56 : 48;
+                            reader.SkipBits(transientBits);
+                            if (transientBits === 48) {
+                                probeOffset = reader.offset;
                                 if (reader.ReadBit()) {
                                     reader.SkipBits(8);
                                 }
                                 else {
-                                    reader.offset = i;
+                                    reader.offset = probeOffset;
                                 }
                             }
                         }
                         else if (reader.ReadBit()) {
+                            // Alternate v105 tail layout with a marker bit + extra byte.
                             reader.SkipBits(8);
                         }
                     }
@@ -653,7 +679,7 @@ function writeItem(item, version, constants, config) {
 }
 exports.writeItem = writeItem;
 function _readSimpleBits(item, reader, version, constants, config) {
-    var _a, _b;
+    var _a, _b, _c;
     //init so we do not have npe's
     item._unknown_data = {};
     //1.10-1.14d
@@ -735,7 +761,7 @@ function _readSimpleBits(item, reader, version, constants, config) {
             item.type_id = ItemType.Other;
         }
         var bits = item.simple_item ? 1 : 3;
-        if ((_a = item.categories) === null || _a === void 0 ? void 0 : _a.includes("Quest")) {
+        if ((_c = item.categories) === null || _c === void 0 ? void 0 : _c.includes("Quest")) {
             item.quest_difficulty = reader.ReadUInt16(constants.magical_properties[356].sB) - constants.magical_properties[356].sA;
             bits = 1;
         }
