@@ -169,4 +169,15 @@ export const GlobalStyle = createGlobalStyle`
 
   .checkboxWithButtons button { display: none }
   .checkboxWithButtons:hover button { display: block }
+
+  .thg-update-toast {
+    background: #1d1f23 !important;
+    color: #f3f5f7 !important;
+    border: 1px solid #343741;
+  }
+
+  .thg-update-toast .Toastify__close-button {
+    color: #f3f5f7;
+    opacity: 0.9;
+  }
 `
