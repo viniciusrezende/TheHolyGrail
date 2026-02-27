@@ -142,7 +142,23 @@ export async function readItems(
   const count = reader.ReadUInt16(); //0x0002
 
   for (let i = 0; i < count; i++) {
-    items.push(await readItem(reader, version, constants, config));
+    const itemStartOffset = reader.offset;
+    try {
+      items.push(await readItem(reader, version, constants, config));
+    } catch (error) {
+      const message = (error as Error)?.message || String(error);
+      const canRetryWithOneByteShift =
+        version === 105 &&
+        (message.includes('Invalid Stat Id') || message.includes('Save Bits is undefined'));
+      if (!canRetryWithOneByteShift) {
+        throw error;
+      }
+
+      // v105 post-ID metadata occasionally leaves item parsing one byte early.
+      // Retry this item once from +8 bits and keep strict failure if it still errors.
+      reader.offset = itemStartOffset + 8;
+      items.push(await readItem(reader, version, constants, config));
+    }
   }
   return items;
 }
@@ -327,14 +343,26 @@ export async function readItem(
       }
     }
   }
-  // D2R v105 sometimes appends an extra byte after the final property list marker.
-  if (version === 105 && reader.ReadBit()) {
-    reader.SkipBits(8);
-  }
-  if (version === 105 && item._unknown_data?.b27_31?.[1]) {
-    // In-session post-ID metadata (observed 48/56-bit variants) disappears after leaving game.
-    const padBits = (8 - (reader.offset & 7)) & 7;
-    reader.SkipBits(padBits <= 3 ? 56 : 48);
+  if (version === 105) {
+    const hasTransientPostIdBits = !!item._unknown_data?.b27_31?.[1];
+    if (hasTransientPostIdBits) {
+      // In-session post-ID metadata disappears after leaving game.
+      const padBits = (8 - (reader.offset & 7)) & 7;
+      const transientBits = padBits <= 3 ? 56 : 48;
+      reader.SkipBits(transientBits);
+      if (transientBits === 48) {
+        // Some v105 samples include an additional marker+byte after the 48-bit variant.
+        const probeOffset = reader.offset;
+        if (reader.ReadBit()) {
+          reader.SkipBits(8);
+        } else {
+          reader.offset = probeOffset;
+        }
+      }
+    } else if (reader.ReadBit()) {
+      // Alternate v105 tail layout with a marker bit + extra byte.
+      reader.SkipBits(8);
+    }
   }
   reader.Align();
 
@@ -562,9 +590,9 @@ function _readSimpleBits(item: types.IItem, reader: BitReader, version: number, 
     item.type = item.type.trim().replace(/\0/g, "");
     let details = _GetItemTXT(item, constants);
     item.categories = details?.c;
-    if (item?.categories.includes("Any Armor")) {
+    if (item?.categories?.includes("Any Armor")) {
       item.type_id = ItemType.Armor;
-    } else if (item?.categories.includes("Weapon")) {
+    } else if (item?.categories?.includes("Weapon")) {
       item.type_id = ItemType.Weapon;
       details = constants.weapon_items[item.type];
     } else {

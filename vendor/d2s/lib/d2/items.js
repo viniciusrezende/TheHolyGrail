@@ -254,38 +254,36 @@ function writeCorpseItem(char, constants, config) {
     });
 }
 exports.writeCorpseItem = writeCorpseItem;
-function readItems(reader, version, constants, config, char) {
-    return __awaiter(this, void 0, void 0, function () {
-        var items, header, count, i, _a, _b;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
-                case 0:
-                    items = [];
-                    header = reader.ReadString(2);
-                    if (header !== "JM") {
-                        // header is not present in first save after char is created
-                        if ((char === null || char === void 0 ? void 0 : char.header.level) === 1) {
-                            return [2 /*return*/, []]; // TODO: return starter items based on class
-                        }
-                        throw new Error("Item list header 'JM' not found at position " + (reader.offset - 2 * 8));
-                    }
-                    count = reader.ReadUInt16();
-                    i = 0;
-                    _c.label = 1;
-                case 1:
-                    if (!(i < count)) return [3 /*break*/, 4];
-                    _b = (_a = items).push;
-                    return [4 /*yield*/, readItem(reader, version, constants, config)];
-                case 2:
-                    _b.apply(_a, [_c.sent()]);
-                    _c.label = 3;
-                case 3:
-                    i++;
-                    return [3 /*break*/, 1];
-                case 4: return [2 /*return*/, items];
+async function readItems(reader, version, constants, config, char) {
+    var items = [];
+    var header = reader.ReadString(2);
+    if (header !== "JM") {
+        // header is not present in first save after char is created
+        if ((char === null || char === void 0 ? void 0 : char.header.level) === 1) {
+            return []; // TODO: return starter items based on class
+        }
+        throw new Error("Item list header 'JM' not found at position " + (reader.offset - 2 * 8));
+    }
+    var count = reader.ReadUInt16();
+    for (var i = 0; i < count; i++) {
+        var itemStartOffset = reader.offset;
+        try {
+            items.push(await readItem(reader, version, constants, config));
+        }
+        catch (error) {
+            var message = (error === null || error === void 0 ? void 0 : error.message) || String(error);
+            var canRetryWithOneByteShift = version === 105 &&
+                (message.indexOf('Invalid Stat Id') !== -1 || message.indexOf('Save Bits is undefined') !== -1);
+            if (!canRetryWithOneByteShift) {
+                throw error;
             }
-        });
-    });
+            // v105 post-ID metadata occasionally leaves item parsing one byte early.
+            // Retry this item once from +8 bits and keep strict failure if it still errors.
+            reader.offset = itemStartOffset + 8;
+            items.push(await readItem(reader, version, constants, config));
+        }
+    }
+    return items;
 }
 exports.readItems = readItems;
 function writeItems(items, version, constants, config) {
@@ -469,13 +467,23 @@ function readItem(reader, version, originalConstants, config, parent) {
                             }
                         }
                     }
-                    // D2R v105 sometimes appends an extra byte after the final property list marker.
-                    if (version === 105 && reader.ReadBit()) {
-                        reader.SkipBits(8);
-                    }
-                    if (version === 105 && ((_b = (_a = item._unknown_data) === null || _a === void 0 ? void 0 : _a.b27_31) === null || _b === void 0 ? void 0 : _b[1])) {
-                        padBits = (8 - (reader.offset & 7)) & 7;
-                        reader.SkipBits(padBits <= 3 ? 56 : 48);
+                    if (version === 105) {
+                        if ((_b = (_a = item._unknown_data) === null || _a === void 0 ? void 0 : _a.b27_31) === null || _b === void 0 ? void 0 : _b[1]) {
+                            padBits = (8 - (reader.offset & 7)) & 7;
+                            reader.SkipBits(padBits <= 3 ? 56 : 48);
+                            if (padBits > 3) {
+                                i = reader.offset;
+                                if (reader.ReadBit()) {
+                                    reader.SkipBits(8);
+                                }
+                                else {
+                                    reader.offset = i;
+                                }
+                            }
+                        }
+                        else if (reader.ReadBit()) {
+                            reader.SkipBits(8);
+                        }
                     }
                     reader.Align();
                     if (!(item.nr_of_items_in_sockets > 0 && item.simple_item === 0)) return [3 /*break*/, 4];
@@ -645,7 +653,7 @@ function writeItem(item, version, constants, config) {
 }
 exports.writeItem = writeItem;
 function _readSimpleBits(item, reader, version, constants, config) {
-    var _a;
+    var _a, _b;
     //init so we do not have npe's
     item._unknown_data = {};
     //1.10-1.14d
@@ -716,10 +724,10 @@ function _readSimpleBits(item, reader, version, constants, config) {
         item.type = item.type.trim().replace(/\0/g, "");
         var details = _GetItemTXT(item, constants);
         item.categories = details === null || details === void 0 ? void 0 : details.c;
-        if (item === null || item === void 0 ? void 0 : item.categories.includes("Any Armor")) {
+        if ((_a = item === null || item === void 0 ? void 0 : item.categories) === null || _a === void 0 ? void 0 : _a.includes("Any Armor")) {
             item.type_id = ItemType.Armor;
         }
-        else if (item === null || item === void 0 ? void 0 : item.categories.includes("Weapon")) {
+        else if ((_b = item === null || item === void 0 ? void 0 : item.categories) === null || _b === void 0 ? void 0 : _b.includes("Weapon")) {
             item.type_id = ItemType.Weapon;
             details = constants.weapon_items[item.type];
         }

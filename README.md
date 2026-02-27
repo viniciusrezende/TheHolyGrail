@@ -15,18 +15,20 @@ Also check out [TheHolyGrail Public Tracker](https://github.com/pyrosplat/TheHol
 
 ### RotW Support
 - Adds support for the new **Warlock** character.
+- Support for all new RotW uniques, sets, runewords, and charms (optional with a toggle).
 - Adds basic **shared stash** parsing for RotW:
   - Reads all 5 shared stash pages.
   - Reads rune presence from the runes tab (presence, but not quantity).
 
 ### New Features
 - Recent finds accordion on the app home screen.
-- Item browser to inspect owned items and see which character holds each item (click on the char name when inspecting your owned items).
+- Added an Item Browser that lets you view every owned item and inspect full stats right inside the app, including exactly which character is holding each one.
+   - While inspecting an item, click any character name to instantly preview that character’s version and compare specs.
+   - Finding your best roll of an item now takes seconds !
 
   <img src="docs/images/item-hero.png" alt="Holy Grail Item Browser" width="350" />
 
 ### Current Limitations
-- Materials tab is not parsed.
 - Rune quantities are not decoded in shared stash (presence only).
 
 ## Core Features of [pyrosplat/TheHolyGrail](https://github.com/pyrosplat/TheHolyGrail)
