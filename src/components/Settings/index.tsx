@@ -35,6 +35,9 @@ import ClearAllIcon from '@mui/icons-material/ClearAll';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import LinkIcon from '@mui/icons-material/Link';
 import SyncIcon from '@mui/icons-material/Sync';
+import packageJson from '../../../package.json';
+
+const MANUAL_UPDATE_CHECK_EVENT = 'thg:check-updates';
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -100,6 +103,10 @@ export default function SettingsPanel({ appSettings, onSaveSetting }: SettingsPa
 
   const handleOpenFolder = () => {
     window.Main.openFolder();
+  };
+
+  const handleManualUpdateCheck = () => {
+    window.dispatchEvent(new Event(MANUAL_UPDATE_CHECK_EVENT));
   };
 
   const handleGameMode = (event: SelectChangeEvent<GameMode>) => {
@@ -339,6 +346,7 @@ export default function SettingsPanel({ appSettings, onSaveSetting }: SettingsPa
   const currentVolume = Math.round((appSettings.soundVolume ?? 1) * 100);
   const currentOverlayScale = Math.round((appSettings.overlayScale ?? 1) * 100);
   const isGrailConfigLocked = appSettings.grailConfigurationLocked || false;
+  const appVersion = packageJson.version;
 
   return (
     <>
@@ -380,6 +388,33 @@ export default function SettingsPanel({ appSettings, onSaveSetting }: SettingsPa
             </AccordionSummary>
             <AccordionDetails>
               <List>
+                <ListItem>
+                  <ListItemIcon sx={{ minWidth: 56 }}>
+                    <InfoIcon />
+                  </ListItemIcon>
+                  <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <ListItemText
+                      primary={t('App version')}
+                      secondary={`v${appVersion}`}
+                    />
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={handleManualUpdateCheck}
+                      sx={{
+                        borderColor: '#CC5F43',
+                        color: '#CC5F43',
+                        '&:hover': {
+                          borderColor: '#CC5F43',
+                          backgroundColor: 'rgba(204, 95, 67, 0.08)',
+                        }
+                      }}
+                    >
+                      {t('Check for updates')}
+                    </Button>
+                  </Box>
+                </ListItem>
+                <Divider />
                 {/* Saved Games Folder */}
                 <ListItem button disabled={gameMode === GameMode.Manual}>
                   <ListItemIcon sx={{ minWidth: 56 }}>

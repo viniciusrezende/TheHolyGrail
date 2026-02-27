@@ -6,7 +6,8 @@ import { Trans } from "react-i18next";
 import { Button } from "@mui/material";
 import { Progress } from "electron-dl";
 
-const GITHUB_LATEST_RELEASE = 'https://api.github.com/repos/zeddicus-pl/d2rHolyGrail/releases/latest';
+const GITHUB_LATEST_RELEASE = 'https://api.github.com/repos/csvon/TheHolyGrail-RotW/releases/latest';
+const MANUAL_UPDATE_CHECK_EVENT = 'thg:check-updates';
 
 type GitHubRelease = {
     name: string,
@@ -32,6 +33,7 @@ const VersionCheck = () => {
     const toastId = useRef<ReactText|null>(null);
     const [ newVersionUrl, setNewVersionUrl ] = useState('');
     const [ isDownloading, setIsDownloading ] = useState(false);
+    const currentVersion = packageJson.version;
 
     const NewVersionButton = () => {
         return <div style={{ paddingRight: 15 }}>
@@ -74,20 +76,48 @@ const VersionCheck = () => {
         }
     }
 
-    useEffect(() => {
+    const checkForUpdates = (manual = false) => {
         fetch(GITHUB_LATEST_RELEASE)
             .then((response) => response.json())
-            .then((release: GitHubRelease) => {
-                if (isNewVersionAvailable(packageJson.version, release.name)) {
+            .then((release: GitHubRelease & { message?: string }) => {
+                if (!release?.name || !Array.isArray(release.assets)) {
+                    if (manual) {
+                        toast.error('Could not check for updates.');
+                    }
+                    return;
+                }
+
+                if (isNewVersionAvailable(currentVersion, release.name)) {
                     const isWin = window.Main.isWindows();
                     const setupAsset = release.assets.find(asset => asset.browser_download_url.includes(isWin ? 'win' : 'darwin'));
                     if (setupAsset) {
                         setNewVersionUrl(setupAsset.browser_download_url);
+                    } else if (manual) {
+                        toast.info('Update found, but no installer was found for this platform.');
                     }
+                    return;
+                }
+
+                if (manual) {
+                    toast.info(`You are on the latest version (v${currentVersion}).`);
                 }
             })
-            .catch((e) => console.log('Could not check for new version'));
-        
+            .catch(() => {
+                if (manual) {
+                    toast.error('Could not check for updates.');
+                }
+                console.log('Could not check for new version');
+            });
+    };
+
+    useEffect(() => {
+        const handleManualUpdateCheck = () => {
+            checkForUpdates(true);
+        };
+
+        checkForUpdates(false);
+        window.addEventListener(MANUAL_UPDATE_CHECK_EVENT, handleManualUpdateCheck);
+
         window.Main.on('downloadProgress', (progress: Progress) => {
             if(toastId.current !== null) {
                 toast.update(toastId.current, {
@@ -101,7 +131,11 @@ const VersionCheck = () => {
                     </Button>,
                 });
             }
-        })
+        });
+
+        return () => {
+            window.removeEventListener(MANUAL_UPDATE_CHECK_EVENT, handleManualUpdateCheck);
+        };
     }, []);
 
     useEffect(() => {

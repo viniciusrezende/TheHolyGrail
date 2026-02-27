@@ -49,22 +49,13 @@ Also check out [TheHolyGrail Public Tracker](https://github.com/pyrosplat/TheHol
 
 ## Getting Started
 
-### Install
-
+### 
 ```bash
-yarn install
-```
-
-### Run (Development)
-
-```bash
-yarn start
-```
-
-### Package App
-
-```bash
-yarn package
+yarn install    # Install
+yarn start      # Run (development)
+yarn package    # Package app
+yarn build      # package + build-win
+yarn build-win  # build win installer
 ```
 
 ## License
