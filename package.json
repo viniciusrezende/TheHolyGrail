@@ -110,6 +110,7 @@
   "build": {
     "appId": "holy-grail-rotw",
     "productName": "The Holy Grail RotW",
+    "artifactName": "TheHolyGrail-RotW-win-setup-${version}.${ext}",
     "win": {
       "target": [
         "nsis"
