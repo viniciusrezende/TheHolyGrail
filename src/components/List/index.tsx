@@ -165,11 +165,17 @@ export function List({ fileReaderResponse, appSettings, itemNotes, saveSetting, 
     window.Main.saveSetting(settingsKeys.onlyMissing, checked);
   }
 
+  const handleGoHome = () => {
+    setSearch('');
+    setTab(TabState.Statistics);
+  }
+
   return (
     <Container>
       <Box sx={{ borderBottom: 4, borderColor: 'divider' }}>
         <ButtonPanel>
           <Search
+            search={search}
             onSearch={(text: string) => {
               setSearch(text);
             }}
@@ -183,7 +189,7 @@ export function List({ fileReaderResponse, appSettings, itemNotes, saveSetting, 
           <Language />
           <SettingsPanel appSettings={appSettings} onSaveSetting={saveSetting} />
         </ButtonPanel>
-        <Logo>
+        <Logo onClick={handleGoHome} style={{ cursor: 'pointer' }}>
           <Image
             src={logo}
             alt=""

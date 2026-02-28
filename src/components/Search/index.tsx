@@ -5,12 +5,12 @@ import SearchIcon from '@mui/icons-material/Search';
 import * as Mousetrap from 'mousetrap';
 
 type SearchBoxProps = {
+  search: string,
   onSearch: (text: string) => void,
 }
 
-export function Search({ onSearch }: SearchBoxProps) {
+export function Search({ search, onSearch }: SearchBoxProps) {
   const { t } = useTranslation();
-  const [ search, setSearch ] = useState("");
   const [ show, setShow ] = useState(false);
 
   useEffect(()=> {
@@ -35,13 +35,11 @@ export function Search({ onSearch }: SearchBoxProps) {
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     const value = e.currentTarget.value;
-    setSearch(value);
     onSearch(value);
   }
 
   const handleShow = () => {
     setShow(!show);
-    setSearch('');
     onSearch('');
   }
 
