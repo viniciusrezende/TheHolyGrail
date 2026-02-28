@@ -220,7 +220,7 @@ export function List({ fileReaderResponse, appSettings, itemNotes, saveSetting, 
               [
                 <Tab label={t("Sets")} key="sets" />,
                 <Tab label={t("Runes")} key="runes" />,
-                <Tab label={t("Runeswords")} key="runewords" />,
+                <Tab label={t("Runewords")} key="runewords" />,
               ]
             }
           </Tabs>
